@@ -1,0 +1,214 @@
+{
+	"name": "easy-dashboard",
+	"version": "1.1.11",
+	"displayName": "Easy Dashboard (1.1.11)",
+	"description": "Add a project dashboard to VSCode for quick launching of workspaces. Supports remote development projects but does not need to be installed on the remote host.",
+	"publisher": "igormages",
+	"keywords": [
+		"project",
+		"dashboard",
+		"speed dial",
+		"project management"
+	],
+	"categories": [
+		"Other"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/igormages/easy-dashboard"
+	},
+	"icon": "local/gfx/icon-lg.png",
+	"engines": {
+		"vscode": "^1.66.0"
+	},
+	"extensionKind": [
+		"ui", "workspace"
+	],
+	"galleryBanner": {
+		"color": "#262335",
+		"theme": "dark"
+	},
+	"activationEvents": [
+		"onStartupFinished"
+	],
+	"main": "./out/main.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "easy-dashboard.openProject",
+				"title": "Open Project"
+			},
+			{
+				"command": "easy-dashboard.addFolder",
+				"title": "New Folder"
+			},
+			{
+				"command": "easy-dashboard.addProject",
+				"title": "Add Project..."
+			},
+			{
+				"command": "easy-dashboard.editProject",
+				"title": "Modifier le projet"
+			},
+			{
+				"command": "easy-dashboard.removeEntry",
+				"title": "Remove"
+			},
+			{
+				"command": "easy-dashboard.openFullDashboard",
+				"title": "Open Full Dashboard"
+			},
+			{
+				"command": "easy-dashboard.changeSortMode",
+				"title": "Trier par..."
+			}
+		],
+		"menus": {
+			"view/title": [
+				{
+					"command": "easy-dashboard.changeSortMode",
+					"when": "view == easy-dashboard-projects-tree"
+				},
+				{
+					"command": "easy-dashboard.addFolder",
+					"when": "view == easy-dashboard-projects-tree"
+				},
+				{
+					"command": "easy-dashboard.addProject",
+					"when": "view == easy-dashboard-projects-tree"
+				},
+				{
+					"command": "easy-dashboard.openFullDashboard",
+					"when": "view == easy-dashboard-projects-tree"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "easy-dashboard.addProject",
+					"when": "view == easy-dashboard-projects-tree && viewItem == easy-dashboard-folder"
+				},
+				{
+					"command": "easy-dashboard.removeEntry",
+					"when": "view == easy-dashboard-projects-tree && viewItem == easy-dashboard-folder"
+				},
+				{
+					"command": "easy-dashboard.editProject",
+					"when": "view == easy-dashboard-projects-tree && viewItem == easy-dashboard-project"
+				},
+				{
+					"command": "easy-dashboard.removeEntry",
+					"when": "view == easy-dashboard-projects-tree && viewItem == easy-dashboard-project"
+				}
+			]
+		},
+		"configuration": {
+			"title": "Easy Dashboard",
+			"properties": {
+				"easy-dashboard.debug": {
+					"type": "boolean",
+					"default": false,
+					"description": "Enable debugging output."
+				},
+				"easy-dashboard.showPaths": {
+					"type": "boolean",
+					"default": true,
+					"description": "Show paths on the project entries."
+				},
+				"easy-dashboard.openOnNewWindow": {
+					"type": "boolean",
+					"default": true,
+					"description": "Auto open the dashboard when spawning new windows."
+				},
+				"easy-dashboard.openInNewWindow": {
+					"type": "boolean",
+					"default": true,
+					"description": "Open projects in a new window (current window stays open)."
+				},
+				"easy-dashboard.sortMode": {
+					"type": "string",
+					"default": "name-asc",
+					"enum": ["name-asc", "name-desc", "lastOpen", "createdAt-desc", "createdAt-asc"],
+					"description": "Sort order: by name, last opened, or creation date."
+				},
+				"easy-dashboard.rounded": {
+					"type": "boolean",
+					"default": true,
+					"description": "I mean if like the corners should be rounded or not."
+				},
+				"easy-dashboard.title": {
+					"type": "string",
+					"default": "Projects",
+					"description": "Easy Dashboard Title"
+				},
+				"easy-dashboard.fontSize": {
+					"type": "string",
+					"default": "font-size-normal",
+					"description": "Text Size"
+				},
+				"easy-dashboard.folderSizing": {
+					"type": "string",
+					"default": "col-12",
+					"description": "The Bootstrap CSS classes used to adjust how the folders scale to your window size."
+				},
+				"easy-dashboard.columnSizing": {
+					"type": "string",
+					"default": "col-12 col-md-6",
+					"description": "The Bootstrap CSS classes used to adjust how the columns scale to your window size."
+				},
+				"easy-dashboard.database": {
+					"type": "array",
+					"default": [],
+					"description": "List of projects stored in your user config so that it can be synced."
+				}
+			}
+		},
+		"views": {
+			"easy-dashboard-sidebar": [
+				{
+					"id": "easy-dashboard-projects-tree",
+					"type": "tree",
+					"name": "Projects",
+					"icon": "local/gfx/icon.svg",
+					"visibility": "visible",
+					"contextualTitle": "Projects"
+				}
+			]
+		},
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "easy-dashboard-sidebar",
+					"title": "Projects",
+					"icon": "local/gfx/icon.svg"
+				}
+			]
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"lint": "eslint src --ext ts"
+	},
+	"devDependencies": {
+		"@types/color": "^3.0.2",
+		"@types/glob": "^7.1.4",
+		"@types/mocha": "^9.0.0",
+		"@types/node": "14.x",
+		"@types/uuid": "^8.3.4",
+		"@types/vscode": "^1.74.0",
+		"@typescript-eslint/eslint-plugin": "^5.1.0",
+		"@typescript-eslint/parser": "^5.1.0",
+		"@vscode/test-electron": "^1.6.2",
+		"eslint": "^8.1.0",
+		"glob": "^7.1.7",
+		"mocha": "^9.1.3",
+		"typescript": "^4.4.4"
+	},
+	"dependencies": {
+		"@vscode/codicons": "^0.0.26",
+		"color": "^4.2.0",
+		"uuid": "^8.3.2"
+	}
+}

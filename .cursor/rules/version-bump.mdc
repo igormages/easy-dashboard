@@ -1,0 +1,19 @@
+---
+description: Montée de version patch à chaque prompt (package.json + displayName)
+globs: package.json
+alwaysApply: true
+---
+
+# Version de l'extension Dashboard
+
+À **chaque prompt** où tu modifies le projet, incrémenter la **version patch** (troisième nombre) dans `package.json` et mettre à jour le `displayName` pour refléter la même version.
+
+- Format actuel : `"version": "1.1.0"` → après modification : `"version": "1.1.1"`, puis `"1.1.2"`, etc.
+- Toujours garder `displayName` synchronisé : `"displayName": "Dashboard (1.1.1)"` (même numéro que `version`).
+
+Cela permet de vérifier à chaque rechargement de l’extension que la bonne version est bien installée.
+
+**À faire à chaque changement :**
+1. Lire la `version` actuelle dans `package.json`.
+2. Incrémenter uniquement le **patch** (dernier nombre) : `1.1.0` → `1.1.1`, `1.1.1` → `1.1.2`.
+3. Mettre à jour `"version"` et `"displayName": "Dashboard (<nouvelle_version>)"` dans `package.json`.
