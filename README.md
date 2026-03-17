@@ -1,107 +1,72 @@
-# Easy Dashboard for VS Code
+# Easy Dashboard
 
-Adds the ability to create and organize projects into a dashboard for quick
-launching. Supports both local directories and Remote Development connections
-and does not need to be installed on remote hosts to function.
+Tableau de bord pour lancer rapidement vos projets dans VS Code ou Cursor. Regroupez vos dossiers locaux, connexions SSH et autres workspaces en un seul endroit.
 
-![Alt text](/local/gfx/ex-dashboard.png "Easy Dashboard")
+![Easy Dashboard](local/gfx/ex-dashboard.png)
 
-# Auto-Theming
+---
 
-Through the power of the 460 some CSS variables Microsoft has set, Easy Dashboard
-tries its best to look good regardless of the theme.
+## Installation
 
-![Alt text](/local/gfx/ex-autotheme.png "Dark and Light")
+Installez l’extension depuis le marché d’extensions (VS Code, Cursor, etc.). Recherchez **Easy Dashboard**.
 
-# Responsive Sizing
+Une fois installée, une icône **Projects** apparaît dans la barre d’activité (à gauche). En ouvrant une fenêtre sans workspace, la vue Projets peut s’afficher automatiquement.
 
-With VS Code being Electron this uses standard web tech to be responsive. The
-column breaking can be customized in the settings.
+---
 
-![Alt text](/local/gfx/ex-responsive.png "Responsive AF")
+## Démarrer
 
-# Usage
+- **Vue Projets (sidebar)**  
+  Cliquez sur l’icône Projects dans la barre latérale pour voir la liste de vos projets et dossiers, les derniers ouverts, et les actions (ajouter, trier, etc.).
 
-After installing you should get an icon in the top left which upon clicking
-will open the project dashboard. If the window opens without a workspace, it
-should open the dashboard automatically.
+- **Dashboard plein écran**  
+  Ouvrez le dashboard en grand via la barre d’outils de la vue Projets (bouton dédié) pour une grille de projets avec dossiers, couleurs et icônes.
 
-![Alt text](/local/gfx/ex-first-open.png "First Open")
+---
 
-You can add new projects directly to the dashboard, or you can create new
-folders to group the projects. Projects can be dragged and dropped between
-different folders and reordered.
+## Ajouter des projets
 
-The colours and icons of the projects can be changed in their individual
-settings. Folders can also manage the colours of projects within to make them
-all match or look pretty.
+- **Dossier local** : choisir un dossier sur votre machine.
+- **SSH** : indiquer utilisateur, hôte et chemin (nécessite l’extension Remote - SSH).
+- **URI** : coller une URI complète (ex. `vscode-remote://...`) pour d’autres types de connexion.
 
-> Note: for the magic pretty to work your folder colour
-> must be defined as a const value. So something normal like `#dc143c`. It will
-> not work on things like `var()` or `calc()`.
+Vous pouvez ajouter un projet à la racine ou dans un dossier existant (clic droit sur un dossier ou bouton dans la sidebar).
 
-# Easy Dashboard Settings
+---
 
-![Alt text](/local/gfx/ex-dashboard-settings.png "Easy Dashboard Settings")
+## Dossiers et organisation
 
-![Alt text](/local/gfx/ex-project-settings.png "Project Settings")
+- Créez des **dossiers** pour regrouper vos projets.
+- **Glisser-déposer** : réorganisez les projets et dossiers dans la sidebar et dans le dashboard plein écran.
+- **Tri** : par nom, date de création ou dernière ouverture (menu de la vue Projets).
 
-![Alt text](/local/gfx/ex-folder-menu.png "Folder Menu")
+---
 
-# Syncing (or not if you prefer)
+## Personnalisation
 
-All project settings are stored in your user config file. If you have enabled
-settings sync then your dashboard will automatically sync across all your
-installations logged in with the same account.
+- **Projet** : description, icône, couleur (via le menu contextuel ou les paramètres du projet dans le dashboard).
+- **Dossier** : couleur, et options pour appliquer une couleur ou une palette aux projets du dossier.
+- **Dashboard** : titre, taille du texte, disposition des colonnes, coins arrondis, affichage des chemins, ouverture dans une nouvelle fenêtre, etc. (paramètres du dashboard depuis le plein écran).
 
-If you do not want them to sync, open the VS Code settings, click the
-little gear next to the setting, and uncheck "Sync This Setting".
+---
 
-![Alt text](/local/gfx/ex-setting-sync.png "Don't sync that setting.")
+## Paramètres et synchronisation
 
-# Publishing (Cursor et Open VSX)
+Les projets et réglages sont stockés dans la configuration utilisateur de VS Code/Cursor. Si la **synchronisation des paramètres** est activée, votre dashboard est répliqué sur vos autres appareils.
 
-Pour que l’extension soit **installable publiquement dans Cursor** (et autres éditeurs basés sur VS Code), publiez-la sur **Open VSX** (Cursor utilise ce registre, pas le Microsoft Marketplace).
+Pour ne pas synchroniser la liste des projets, désactivez la synchronisation pour le paramètre **Easy Dashboard: Database** dans les réglages.
 
-1. **Compte**
-   - Créez un compte sur [eclipse.org](https://accounts.eclipse.org).
-   - Connectez-vous sur [open-vsx.org](https://open-vsx.org) avec GitHub et liez votre compte Eclipse. Acceptez le Publisher Agreement dans votre profil.
+---
 
-2. **Token**
-   - Sur [open-vsx.org/user-settings/tokens](https://open-vsx.org/user-settings/tokens), créez un **Personal Access Token**. Conservez-le en lieu sûr.
+## Raccourcis utiles
 
-3. **CLI `ovsx`**
-   ```bash
-   npm install -g ovsx
-   ```
+| Action              | Où                                      |
+|---------------------|------------------------------------------|
+| Ajouter un projet   | Bouton + ou clic droit sur un dossier   |
+| Nouveau dossier     | Bouton dossier dans la barre de la vue  |
+| Ouvrir un projet    | Clic sur le projet (ou menu : ouvrir ici / nouvelle fenêtre) |
+| Modifier / supprimer| Clic droit sur le projet ou le dossier  |
 
-4. **Namespace (une fois)**
-   Le `publisher` dans `package.json` doit exister comme namespace sur Open VSX. Si besoin, créez-le :
-   ```bash
-   ovsx create-namespace igormages
-   ```
-   (Utilise le token quand il est demandé.)
+---
 
-5. **Package et publication**
-   ```bash
-   npm run compile
-   npx ovsx publish --pat <VOTRE_TOKEN>
-   ```
-   Ou avec un .vsix déjà généré :
-   ```bash
-   npx vsce package
-   npx ovsx publish --pat <VOTRE_TOKEN> easy-dashboard-1.1.11.vsix
-   ```
-
-Après publication, l’extension apparaît sur [open-vsx.org](https://open-vsx.org) et est **installable depuis Cursor** (Extensions → rechercher « Easy Dashboard » si Cursor est configuré pour utiliser Open VSX).
-
-# Dev Notes
-
-* Make a .vsix installer:
-  `vsce package <version>`
-
-* Publish to Open VSX (for Cursor):
-  `npx ovsx publish --pat <TOKEN>`
-
-* Publish to Microsoft Marketplace (optional):
-  `vsce publish <version>`
+*Easy Dashboard fonctionne avec VS Code et les éditeurs compatibles (Cursor, etc.). Les projets distants (SSH) ne nécessitent pas d’installer l’extension sur la machine distante.*

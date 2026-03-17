@@ -1,7 +1,7 @@
 {
 	"name": "easy-dashboard",
-	"version": "1.1.11",
-	"displayName": "Easy Dashboard (1.1.11)",
+	"version": "1.1.13",
+	"displayName": "Easy Dashboard (1.1.13)",
 	"description": "Add a project dashboard to VSCode for quick launching of workspaces. Supports remote development projects but does not need to be installed on the remote host.",
 	"publisher": "igormages",
 	"keywords": [
@@ -19,7 +19,7 @@
 	},
 	"icon": "local/gfx/icon-lg.png",
 	"engines": {
-		"vscode": "^1.66.0"
+		"vscode": "^1.74.0"
 	},
 	"extensionKind": [
 		"ui", "workspace"
