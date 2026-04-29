@@ -12,5 +12,6 @@
 		"activityBar.background": "#235577",
 		"titleBar.activeBackground": "#2673a7",
 		"titleBar.activeForeground": "#FCFCFF"
-	}
+	},
+	"easy-dashboard.showProjectIcons": false
 }

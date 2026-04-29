@@ -53,7 +53,7 @@ class TemplatedDialog {
 
 	show() {
 
-		jQuery('*[data-toggle=dropdown')
+		jQuery('[data-toggle="dropdown"]')
 		.dropdown('hide');
 
 		(this.mount)

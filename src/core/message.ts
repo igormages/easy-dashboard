@@ -16,16 +16,16 @@ class Message {
 		return;
 	};
 
-	static FromObject(input: { type: string, data: any }):
+	static FromObject(input: { type?: unknown, data?: unknown }):
 	Message {
 
 		let type = 'unknown';
-		let data = null;
+		let data: any = {};
 
 		if(typeof input.type === 'string')
 		type = input.type;
 
-		if(typeof input.data === 'object')
+		if(input.data && typeof input.data === 'object')
 		data = input.data;
 
 		return new Message(type, data);

@@ -20,15 +20,30 @@ extends TemplatedDialog {
 		this.inputFolderSizing = this.el.find('.FolderSizing');
 		this.inputColumnSizing = this.el.find('.ColumnSizing');
 		this.inputShowPaths = this.el.find('.ShowPaths');
+		this.inputShowProjectIcons = this.el.find('.ShowProjectIcons');
 		this.inputOpenOnNewWindow = this.el.find('.OpenOnNewWindow');
 		this.inputOpenInNewWindow = this.el.find('.OpenInNewWindow')
 		this.inputFontSize = this.el.find('.FontSize');
 		this.inputRounded = this.el.find('.RoundedCorners');
+		this.inputProjectsRoot = this.el.find('.ProjectsRoot');
+		this.btnPickProjectsRoot = this.el.find('.PickProjectsRoot');
 
 		this.btnFolderSizingPresets = this.el.find('.DashboardFolderPreset');
 		this.btnColumnSizingPresets = this.el.find('.DashboardColumnPreset');
 		this.btnAccept = this.el.find('.Save');
 		this.btnCancel = this.el.find('.Cancel');
+
+		this._onProjectsRootPick = (ev, data) => {
+			if (typeof data.label === 'string') {
+				this.inputProjectsRoot.val(data.label);
+			}
+		};
+		jQuery(document).on('projectsrootpick.dashboardcfg', this._onProjectsRootPick);
+
+		this.btnPickProjectsRoot.on('click', () => {
+			this.api.send(new Message('pickprojectsroot', {}));
+			return false;
+		});
 
 		return;
 	};
@@ -76,10 +91,12 @@ extends TemplatedDialog {
 				folderSizing: self.inputFolderSizing.tval(),
 				columnSizing: self.inputColumnSizing.tval(),
 				showPaths: !!parseInt(self.inputShowPaths.tval()),
+				showProjectIcons: !!parseInt(self.inputShowProjectIcons.tval()),
 				openOnNewWindow: !!parseInt(self.inputOpenOnNewWindow.tval()),
 				openInNewWindow: !!parseInt(self.inputOpenInNewWindow.tval()),
 				fontSize: self.inputFontSize.tval(),
-				rounded: !!parseInt(self.inputRounded.tval())
+				rounded: !!parseInt(self.inputRounded.tval()),
+				projectsRoot: self.inputProjectsRoot.tval()
 			};
 
 			self.api.send(new Message('configset', config));
@@ -106,10 +123,12 @@ extends TemplatedDialog {
 		this.inputFolderSizing.val(this.api.folderSizing);
 		this.inputColumnSizing.val(this.api.columnSizing);
 		this.inputShowPaths.val(this.api.showPaths ? '1' : '0');
+		this.inputShowProjectIcons.val(this.api.showProjectIcons !== false ? '1' : '0');
 		this.inputOpenOnNewWindow.val(this.api.openOnNewWindow ? '1' : '0');
 		this.inputOpenInNewWindow.val(this.api.openInNewWindow ? '1' : '0');
 		this.inputFontSize.val(this.api.fontSize);
 		this.inputRounded.val(this.api.rounded ? '1' : '0');
+		this.inputProjectsRoot.val(this.api.projectsRoot || '');
 
 		return;
 	};

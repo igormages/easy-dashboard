@@ -1,8 +1,8 @@
 {
 	"name": "easy-dashboard",
-	"version": "1.1.13",
-	"displayName": "Easy Dashboard (1.1.13)",
-	"description": "Add a project dashboard to VSCode for quick launching of workspaces. Supports remote development projects but does not need to be installed on the remote host.",
+	"version": "1.1.88",
+	"displayName": "Dashboard (1.1.88)",
+	"description": "%easyDashboard.extension.description%",
 	"publisher": "igormages",
 	"keywords": [
 		"project",
@@ -32,54 +32,114 @@
 		"onStartupFinished"
 	],
 	"main": "./out/main.js",
+	"l10n": "./l10n",
 	"contributes": {
 		"commands": [
 			{
 				"command": "easy-dashboard.openProject",
-				"title": "Open Project"
+				"title": "%easyDashboard.cmd.openProject%"
+			},
+			{
+				"command": "easy-dashboard.openProjectInNewWindow",
+				"title": "%easyDashboard.cmd.openProjectInNewWindow%"
 			},
 			{
 				"command": "easy-dashboard.addFolder",
-				"title": "New Folder"
+				"title": "%easyDashboard.cmd.addFolder%"
 			},
 			{
 				"command": "easy-dashboard.addProject",
-				"title": "Add Project..."
+				"title": "%easyDashboard.cmd.addProject%"
 			},
 			{
 				"command": "easy-dashboard.editProject",
-				"title": "Modifier le projet"
+				"title": "%easyDashboard.cmd.editProject%"
 			},
 			{
 				"command": "easy-dashboard.removeEntry",
-				"title": "Remove"
+				"title": "%easyDashboard.cmd.removeEntry%"
+			},
+			{
+				"command": "easy-dashboard.filterProjects",
+				"title": "%easyDashboard.cmd.filterProjects%",
+				"icon": "$(search)"
 			},
 			{
 				"command": "easy-dashboard.openFullDashboard",
-				"title": "Open Full Dashboard"
+				"title": "%easyDashboard.cmd.openFullDashboard%",
+				"category": "%easyDashboard.category%",
+				"icon": "$(dashboard)"
 			},
 			{
 				"command": "easy-dashboard.changeSortMode",
-				"title": "Trier par..."
+				"title": "%easyDashboard.cmd.changeSortMode%"
+			},
+			{
+				"command": "easy-dashboard.toggleProjectIcons",
+				"title": "%easyDashboard.cmd.toggleProjectIcons%"
+			},
+			{
+				"command": "easy-dashboard.switchCursorWindow",
+				"title": "%easyDashboard.cmd.switchCursorWindow%",
+				"icon": "$(window)"
+			},
+			{
+				"command": "easy-dashboard.collapseAllProjects",
+				"title": "%easyDashboard.cmd.collapseAllProjects%",
+				"icon": "$(collapse-all)"
+			},
+			{
+				"command": "easy-dashboard.syncEnvWithVercel",
+				"title": "%easyDashboard.cmd.syncEnvWithVercel%",
+				"icon": "$(sync)"
 			}
 		],
 		"menus": {
 			"view/title": [
 				{
+					"command": "easy-dashboard.openFullDashboard",
+					"when": "view == easy-dashboard-projects-tree",
+					"group": "navigation@1"
+				},
+				{
+					"command": "easy-dashboard.switchCursorWindow",
+					"when": "view == easy-dashboard-projects-tree",
+					"group": "navigation@2"
+				},
+				{
+					"command": "easy-dashboard.filterProjects",
+					"when": "view == easy-dashboard-projects-tree",
+					"group": "navigation@3"
+				},
+				{
+					"command": "easy-dashboard.collapseAllProjects",
+					"when": "view == easy-dashboard-projects-tree",
+					"group": "navigation@50"
+				},
+				{
 					"command": "easy-dashboard.changeSortMode",
-					"when": "view == easy-dashboard-projects-tree"
+					"when": "view == easy-dashboard-projects-tree",
+					"group": "z_easy_dashboard"
+				},
+				{
+					"command": "easy-dashboard.toggleProjectIcons",
+					"when": "view == easy-dashboard-projects-tree",
+					"group": "z_easy_dashboard"
+				},
+				{
+					"command": "easy-dashboard.syncEnvWithVercel",
+					"when": "view == easy-dashboard-projects-tree",
+					"group": "z_easy_dashboard"
 				},
 				{
 					"command": "easy-dashboard.addFolder",
-					"when": "view == easy-dashboard-projects-tree"
+					"when": "view == easy-dashboard-projects-tree",
+					"group": "z_easy_dashboard"
 				},
 				{
 					"command": "easy-dashboard.addProject",
-					"when": "view == easy-dashboard-projects-tree"
-				},
-				{
-					"command": "easy-dashboard.openFullDashboard",
-					"when": "view == easy-dashboard-projects-tree"
+					"when": "view == easy-dashboard-projects-tree",
+					"group": "z_easy_dashboard"
 				}
 			],
 			"view/item/context": [
@@ -92,85 +152,176 @@
 					"when": "view == easy-dashboard-projects-tree && viewItem == easy-dashboard-folder"
 				},
 				{
+					"command": "easy-dashboard.openProjectInNewWindow",
+					"when": "(view == easy-dashboard-projects-tree || view == easy-dashboard-recent-tree) && viewItem == easy-dashboard-project"
+				},
+				{
 					"command": "easy-dashboard.editProject",
-					"when": "view == easy-dashboard-projects-tree && viewItem == easy-dashboard-project"
+					"when": "(view == easy-dashboard-projects-tree || view == easy-dashboard-recent-tree) && viewItem == easy-dashboard-project"
+				},
+				{
+					"command": "easy-dashboard.syncEnvWithVercel",
+					"when": "(view == easy-dashboard-projects-tree || view == easy-dashboard-recent-tree) && viewItem == easy-dashboard-project"
 				},
 				{
 					"command": "easy-dashboard.removeEntry",
-					"when": "view == easy-dashboard-projects-tree && viewItem == easy-dashboard-project"
+					"when": "(view == easy-dashboard-projects-tree || view == easy-dashboard-recent-tree) && viewItem == easy-dashboard-project"
 				}
 			]
 		},
+		"keybindings": [
+			{
+				"command": "easy-dashboard.openProjectInNewWindow",
+				"key": "ctrl+shift+enter",
+				"mac": "cmd+shift+enter",
+				"when": "view == easy-dashboard-projects-tree || view == easy-dashboard-recent-tree"
+			},
+			{
+				"command": "easy-dashboard.openFullDashboard",
+				"key": "ctrl+shift+d",
+				"mac": "cmd+shift+d"
+			}
+		],
 		"configuration": {
-			"title": "Easy Dashboard",
+			"title": "%easyDashboard.config.title%",
 			"properties": {
 				"easy-dashboard.debug": {
 					"type": "boolean",
 					"default": false,
-					"description": "Enable debugging output."
+					"description": "%easyDashboard.config.debug%"
 				},
 				"easy-dashboard.showPaths": {
 					"type": "boolean",
 					"default": true,
-					"description": "Show paths on the project entries."
+					"description": "%easyDashboard.config.showPaths%"
+				},
+				"easy-dashboard.showProjectIcons": {
+					"type": "boolean",
+					"default": true,
+					"description": "%easyDashboard.config.showProjectIcons%"
+				},
+				"easy-dashboard.alwaysShowViewHeaderActions": {
+					"type": "boolean",
+					"default": true,
+					"description": "%easyDashboard.config.alwaysShowViewHeaderActions%",
+					"markdownDescription": "%easyDashboard.config.alwaysShowViewHeaderActionsMarkdown%"
 				},
 				"easy-dashboard.openOnNewWindow": {
 					"type": "boolean",
 					"default": true,
-					"description": "Auto open the dashboard when spawning new windows."
+					"description": "%easyDashboard.config.openOnNewWindow%"
 				},
 				"easy-dashboard.openInNewWindow": {
 					"type": "boolean",
 					"default": true,
-					"description": "Open projects in a new window (current window stays open)."
+					"description": "%easyDashboard.config.openInNewWindow%"
 				},
 				"easy-dashboard.sortMode": {
 					"type": "string",
 					"default": "name-asc",
 					"enum": ["name-asc", "name-desc", "lastOpen", "createdAt-desc", "createdAt-asc"],
-					"description": "Sort order: by name, last opened, or creation date."
+					"description": "%easyDashboard.config.sortMode%"
 				},
 				"easy-dashboard.rounded": {
 					"type": "boolean",
 					"default": true,
-					"description": "I mean if like the corners should be rounded or not."
+					"description": "%easyDashboard.config.rounded%"
 				},
 				"easy-dashboard.title": {
 					"type": "string",
 					"default": "Projects",
-					"description": "Easy Dashboard Title"
+					"description": "%easyDashboard.config.titleSetting%"
 				},
 				"easy-dashboard.fontSize": {
 					"type": "string",
 					"default": "font-size-normal",
-					"description": "Text Size"
+					"description": "%easyDashboard.config.fontSize%"
 				},
 				"easy-dashboard.folderSizing": {
 					"type": "string",
 					"default": "col-12",
-					"description": "The Bootstrap CSS classes used to adjust how the folders scale to your window size."
+					"description": "%easyDashboard.config.folderSizing%"
 				},
 				"easy-dashboard.columnSizing": {
 					"type": "string",
 					"default": "col-12 col-md-6",
-					"description": "The Bootstrap CSS classes used to adjust how the columns scale to your window size."
+					"description": "%easyDashboard.config.columnSizing%"
 				},
 				"easy-dashboard.database": {
 					"type": "array",
 					"default": [],
-					"description": "List of projects stored in your user config so that it can be synced."
+					"description": "%easyDashboard.config.database%"
+				},
+				"easy-dashboard.projectsRoot": {
+					"type": "string",
+					"default": "",
+					"description": "%easyDashboard.config.projectsRoot%"
+				},
+				"easy-dashboard.viewMode": {
+					"type": "string",
+					"default": "grid",
+					"enum": ["grid", "list"],
+					"description": "%easyDashboard.config.viewMode%"
+				},
+				"easy-dashboard.chartVisible": {
+					"type": "boolean",
+					"default": true,
+					"description": "%easyDashboard.config.chartVisible%"
+				},
+				"easy-dashboard.filterMode": {
+					"type": "string",
+					"default": "all",
+					"enum": ["all", "today", "week", "month"],
+					"description": "%easyDashboard.config.filterMode%"
+				},
+				"easy-dashboard.uiLocale": {
+					"type": "string",
+					"default": "auto",
+					"enum": ["auto", "en", "fr"],
+					"enumDescriptions": [
+						"%easyDashboard.config.uiLocale.auto%",
+						"%easyDashboard.config.uiLocale.en%",
+						"%easyDashboard.config.uiLocale.fr%"
+					],
+					"description": "%easyDashboard.config.uiLocale%"
+				},
+				"easy-dashboard.vercelTeamSlug": {
+					"type": "string",
+					"default": "",
+					"description": "%easyDashboard.config.vercelTeamSlug%"
+				},
+				"easy-dashboard.neonOrgId": {
+					"type": "string",
+					"default": "",
+					"description": "%easyDashboard.config.neonOrgId%"
 				}
 			}
 		},
 		"views": {
 			"easy-dashboard-sidebar": [
 				{
-					"id": "easy-dashboard-projects-tree",
+					"id": "easy-dashboard-recent-tree",
 					"type": "tree",
-					"name": "Projects",
+					"name": "%easyDashboard.view.recent.name%",
 					"icon": "local/gfx/icon.svg",
 					"visibility": "visible",
-					"contextualTitle": "Projects"
+					"contextualTitle": "%easyDashboard.view.recent.contextualTitle%"
+				},
+				{
+					"id": "easy-dashboard-activity-webview",
+					"type": "webview",
+					"name": "%easyDashboard.view.activity.name%",
+					"icon": "local/gfx/icon.svg",
+					"visibility": "visible",
+					"contextualTitle": "%easyDashboard.view.activity.contextualTitle%"
+				},
+				{
+					"id": "easy-dashboard-projects-tree",
+					"type": "tree",
+					"name": "%easyDashboard.view.projects.name%",
+					"icon": "local/gfx/icon.svg",
+					"visibility": "visible",
+					"contextualTitle": "%easyDashboard.view.projects.contextualTitle%"
 				}
 			]
 		},
@@ -178,16 +329,18 @@
 			"activitybar": [
 				{
 					"id": "easy-dashboard-sidebar",
-					"title": "Projects",
+					"title": "%easyDashboard.activity.title%",
 					"icon": "local/gfx/icon.svg"
 				}
 			]
 		}
 	},
 	"scripts": {
-		"vscode:prepublish": "npm run compile",
+		"vscode:prepublish": "npm run compile && npm run build:webview",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
+		"build:webview": "cd webview-ui && npm run build",
+		"watch:webview": "cd webview-ui && npm run build -- --watch",
 		"pretest": "npm run compile && npm run lint",
 		"lint": "eslint src --ext ts"
 	},

@@ -1,42 +1,65 @@
 import * as vscode from 'vscode';
 
-/** Codicons proposés pour les projets (id, libellé) */
+import { uiT } from './ui-locale';
+
+/** Codicons proposés pour les projets (id, libellé anglais = clé l10n) */
 export const PROJECT_ICONS: { id: string; label: string }[] = [
-	{ id: '', label: 'Aucune' },
-	{ id: 'folder', label: 'Dossier' },
-	{ id: 'folder-opened', label: 'Dossier ouvert' },
-	{ id: 'project', label: 'Projet' },
-	{ id: 'file', label: 'Fichier' },
+	{ id: '', label: 'None' },
+	{ id: 'folder', label: 'Folder' },
+	{ id: 'folder-opened', label: 'Open folder' },
+	{ id: 'project', label: 'Project' },
+	{ id: 'file', label: 'File' },
 	{ id: 'file-code', label: 'Code' },
-	{ id: 'repo', label: 'Dépôt' },
-	{ id: 'remote-explorer', label: 'Distant' },
-	{ id: 'book', label: 'Livre' },
+	{ id: 'repo', label: 'Repository' },
+	{ id: 'remote-explorer', label: 'Remote' },
+	{ id: 'book', label: 'Book' },
 	{ id: 'package', label: 'Package' },
 	{ id: 'globe', label: 'Globe' },
-	{ id: 'home', label: 'Accueil' },
-	{ id: 'star-full', label: 'Étoile' },
-	{ id: 'heart', label: 'Cœur' },
-	{ id: 'briefcase', label: 'Mallette' },
-	{ id: 'device-desktop', label: 'Ordinateur' },
+	{ id: 'home', label: 'Home' },
+	{ id: 'star-full', label: 'Star' },
+	{ id: 'heart', label: 'Heart' },
+	{ id: 'briefcase', label: 'Briefcase' },
+	{ id: 'device-desktop', label: 'Computer' },
 	{ id: 'code', label: 'Code' },
 	{ id: 'terminal', label: 'Terminal' },
-	{ id: 'database', label: 'Base de données' },
-	{ id: 'server', label: 'Serveur' },
+	{ id: 'database', label: 'Database' },
+	{ id: 'server', label: 'Server' },
 ];
 
-export async function pickProjectIcon(currentId: string = ''): Promise<string> {
-	const pick = await vscode.window.showQuickPick(
-		PROJECT_ICONS.map(({ id, label }) => ({
-			label: label,
+const PNG_PICK_ID = '__png__';
+
+export type ProjectIconPick = { icon: string; iconPngPath: string };
+
+export async function pickProjectIcon(currentId: string = '', currentPngPath: string = ''): Promise<ProjectIconPick> {
+	const items = [
+		...PROJECT_ICONS.map(({ id, label }) => ({
+			label: uiT(label),
 			description: id || undefined,
 			iconPath: id ? new vscode.ThemeIcon(id) : undefined,
 			id,
 		})),
 		{
-			title: 'Icône du projet',
-			placeHolder: 'Choisir une icône (optionnel)',
-			matchOnDescription: true,
-		}
-	);
-	return pick?.id ?? currentId;
+			label: uiT('PNG file...'),
+			description: currentPngPath || undefined,
+			iconPath: new vscode.ThemeIcon('file-media'),
+			id: PNG_PICK_ID,
+		},
+	];
+	const pick = await vscode.window.showQuickPick(items, {
+		title: uiT('Project icon'),
+		placeHolder: uiT('Pick an icon or PNG file (optional)'),
+		matchOnDescription: true,
+	});
+	if (!pick) return { icon: currentId, iconPngPath: currentPngPath };
+	if (pick.id === PNG_PICK_ID) {
+		const uris = await vscode.window.showOpenDialog({
+			canSelectFiles: true,
+			canSelectFolders: false,
+			canSelectMany: false,
+			filters: { [uiT('PNG images')]: ['png'] },
+		});
+		if (uris && uris.length > 0) return { icon: '', iconPngPath: uris[0].fsPath };
+		return { icon: currentId, iconPngPath: currentPngPath };
+	}
+	return { icon: pick.id, iconPngPath: '' };
 }

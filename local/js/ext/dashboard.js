@@ -4,6 +4,7 @@ import Message from './message.js';
 import ProjectNew from './project-new.js';
 import FolderNew from './folder-new.js';
 import DashboardConfig from './dashboard-config.js';
+import { setI18nMap, t } from './i18n.js';
 
 class Dashboard {
 
@@ -24,10 +25,14 @@ class Dashboard {
 	columnSizing = 'col-12 col-sm-6';
 	tabMode = true;
 	showPaths = true;
+	showProjectIcons = true;
 	openOnNewWindow = true;
 	openInNewWindow = false;
 	fontSize = 'font-size-normal';
 	rounded = true;
+	projectsRoot = '';
+	/** Filtre affichage vue complète (même logique que la barre latérale) */
+	searchQuery = '';
 
 	////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////
@@ -47,9 +52,13 @@ class Dashboard {
 		this.elMain = jQuery('#Dashboard')
 		this.elProjectBox = jQuery('#ProjectBox');
 		this.elToolbar = jQuery('#Toolbar');
+		this.elSearch = jQuery('#DashboardSearch');
 		this.elMessageDebug = jQuery('#Debug');
 		this.elApp = jQuery('#App');
 		this.setDebug(this.debug);
+
+		this.elSearch.attr('placeholder', t('Search for a project…'));
+		this.elSearch.attr('aria-label', t('Search for a project'));
 
 		this.template.folder = (
 			(this.elProjectBox)
@@ -89,10 +98,6 @@ class Dashboard {
 
 		let self = this;
 
-		(this.body)
-		.find('.DashboardTitle')
-		.text(this.title);
-
 		(this.elApp)
 		.removeClassEx(/^font-size-/)
 		.removeClass('Rounded Squared')
@@ -105,16 +110,84 @@ class Dashboard {
 		return;
 	};
 
+	normalizeFilter(raw) {
+		return String(raw || '').trim().toLowerCase();
+	}
+
+	entryMatchesQuery(entry, qNorm) {
+		if(!qNorm)
+		return true;
+		const name = (entry.name || '').toLowerCase();
+		const path = (entry.path || '').toLowerCase();
+		const desc = (entry.description || '').trim().toLowerCase();
+		return name.includes(qNorm) || path.includes(qNorm) || (desc && desc.includes(qNorm));
+	}
+
+	folderNameMatchesQuery(folder, qNorm) {
+		if(!qNorm)
+		return true;
+		return (folder.name || '').toLowerCase().includes(qNorm);
+	}
+
+	/** @param {any[]} items */
+	filterItemsRaw(items, qNorm) {
+		if(!qNorm)
+		return items;
+		const out = [];
+		for(const item of items) {
+			if(typeof item.path !== 'undefined') {
+				if(this.entryMatchesQuery(item, qNorm))
+				out.push(item);
+			} else {
+				const projects = item.projects || [];
+				const childFiltered = this.filterItemsRaw(projects, qNorm);
+				if(this.folderNameMatchesQuery(item, qNorm)) {
+					out.push(item);
+				} else if(childFiltered.length > 0) {
+					out.push({ ...item, projects: childFiltered, open: true });
+				}
+			}
+		}
+		return out;
+	}
+
 	renderProjectEntries() {
 
 		this.elProjectBox.empty();
 
-		for(const item of this.database) {
+		const qNorm = this.normalizeFilter(this.searchQuery);
+		let items = this.database || [];
+
+		if(qNorm)
+		items = this.filterItemsRaw(items, qNorm);
+
+		if(items.length === 0 && qNorm) {
+			this.elProjectBox.append(
+				jQuery('<div class="col-12 mb-3 text-muted">')
+				.append(jQuery('<div class="font-weight-bold">').text(t('No results')))
+				.append(jQuery('<div class="font-size-smallerer mt-1">').text(t('Try changing or clearing the search')))
+			);
+			return;
+		}
+
+		if(items.length === 0) {
+			this.elProjectBox.append(
+				jQuery('<div class="col-12 mb-3 text-muted">')
+				.append(jQuery('<div class="font-weight-bold">').text(t('No projects yet')))
+				.append(jQuery('<div class="font-size-smallerer mt-1">').text(t('Create a project or folder to get started.')))
+			);
+			return;
+		}
+
+		for(const item of items) {
 			if(typeof item.path === 'undefined')
 			this.elProjectBox.append((new Folder(this, item)).el);
 			else
 			this.elProjectBox.append((new Project(this, item)).el);
 		}
+
+		if(qNorm)
+		this.elProjectBox.find('.Folder').addClass('Open');
 
 		return;
 	};
@@ -188,12 +261,29 @@ class Dashboard {
 			return false;
 		});
 
+		jQuery('.CmdOpenFullDashboard')
+		.on('click', function(){
+			self.send(new Message('openfulldashboard', {}));
+			return false;
+		});
+
 		jQuery('.CmdOpenAll')
 		.on('click', function(){
 			//jQuery('.Folder')
 			//.addClass('Open');
 			self.send(new Message('folderopenall',{}));
 			return false;
+		});
+
+		let searchDebounce;
+		self.elSearch.on('input', function(){
+			if(searchDebounce)
+			clearTimeout(searchDebounce);
+			searchDebounce = setTimeout(function(){
+				self.searchQuery = self.elSearch.val() || '';
+				self.renderProjectEntries();
+			}, 150);
+			return;
 		});
 
 		return;
@@ -204,9 +294,14 @@ class Dashboard {
 
 	onMessage(ev) {
 
+		const raw = ev?.originalEvent?.data;
+		if(!raw || typeof raw !== 'object' || typeof raw.type !== 'string') {
+			return;
+		}
+
 		let msg = new Message(
-			ev.originalEvent.data.type,
-			ev.originalEvent.data.data
+			raw.type,
+			raw.data
 		);
 
 		if(this.debug)
@@ -216,8 +311,17 @@ class Dashboard {
 			case 'sup': this.onHeySup(msg); break;
 			case 'render': this.onRender(msg); break;
 			case 'dirpick': this.onDirPicked(msg); break;
+			case 'projectsrootpick': this.onProjectsRootPicked(msg); break;
+			case 'openprojectnew': this.onOpenProjectNew(msg); break;
+			case 'projecticonpick': this.onProjectIconPicked(msg); break;
 		}
 
+		return;
+	};
+
+	onRender(msg) {
+
+		this.render();
 		return;
 	};
 
@@ -226,7 +330,16 @@ class Dashboard {
 		// copy in config info.
 
 		for(const key in msg.data)
-		if(typeof this[key] !== 'undefined') {
+		if(key === 'i18n') {
+			if(msg.data.i18n && typeof msg.data.i18n === 'object') {
+				setI18nMap(msg.data.i18n);
+				if(this.elSearch && this.elSearch.length) {
+					this.elSearch.attr('placeholder', t('Search for a project…'));
+					this.elSearch.attr('aria-label', t('Search for a project'));
+				}
+			}
+		}
+		else if(typeof this[key] !== 'undefined') {
 			//console.log(`${key} = ${msg.data[key]}`);
 			this[key] = msg.data[key];
 		}
@@ -252,13 +365,46 @@ class Dashboard {
 		return;
 	};
 
+	onProjectsRootPicked(msg) {
+
+		jQuery(document)
+		.trigger('projectsrootpick', msg.data);
+
+		return;
+	};
+
+	onOpenProjectNew(msg) {
+
+		const parent = typeof msg.data?.parent === 'string' ? msg.data.parent : null;
+		new ProjectNew(this, parent);
+
+		return;
+	};
+
+	onProjectIconPicked(msg) {
+
+		jQuery(document)
+		.trigger('projecticonpick', [msg.data]);
+
+		return;
+	};
+
 	////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////
 
 	static readableURI(input) {
 
+		if(typeof input !== 'string')
+		return '';
+
 		if(input.match(/^file:/)) {
-			let output = decodeURIComponent(input.replace(/^file:\/\/\/?/,''));
+			let output = input.replace(/^file:\/\/\/?/,'');
+
+			try {
+				output = decodeURIComponent(output);
+			} catch {
+				// Keep the raw path if the URI contains an invalid percent escape.
+			}
 
 			if(navigator.platform.match(/^Win/))
 			output = output.replace(/\//g,'\\');

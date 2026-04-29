@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html data-prefix="%ROOT%">
 <head>
-	<title>Easy Dashboard</title>
+	<title>%I18N_PAGE_TITLE%</title>
 	<meta charset="utf-8" />
 	<meta http-equiv="content-security-policy" content="default-src 'none'; style-src %CSPSOURCE% 'unsafe-inline'; img-src %CSPSOURCE%; script-src %CSPSOURCE%; font-src %CSPSOURCE%;" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -19,17 +19,30 @@
 	<div id="Templates" class="d-none">
 		<div id="TemplateProjectConfig" class="Dialog d-none">
 			<header>
-				<div class="Titlebar">Project Settings</div>
+				<div class="Titlebar">%I18N_DLG_PROJECT_CONFIG_TITLE%</div>
 				<div class="Close"><i class="codicon codicon-close"></i></div>
 			</header>
 			<section>
 				<div class="row tight align-items-center">
 					<div class="col-12">
-						<input type="text" class="form-control Name" placeholder="Name..." />
+						<input type="text" class="form-control Name" placeholder="%I18N_PH_NAME%" />
 						<hr />
 					</div>
 					<div class="col-12 ProjectOptions">
-						<input type="text" class="form-control Path" placeholder="URI..." />
+						<input type="text" class="form-control Path" placeholder="%I18N_PH_URI%" />
+						<hr />
+					</div>
+					<div class="col-12 ProjectExtras">
+						<div class="font-weight-bold mb-1">%I18N_LABEL_DESCRIPTION%</div>
+						<textarea class="form-control Description" rows="2" placeholder="%I18N_PH_DESCRIPTION%"></textarea>
+						<div class="mb-2 mt-2 RowProjectIcon">
+							<div class="font-weight-bold mb-1">%I18N_LABEL_PROJECT_ICON%</div>
+							<div class="d-flex align-items-center flex-wrap">
+								<button type="button" class="btn btn-dark btn-sm mr-2 PickIcon">%I18N_BTN_CHOOSE_ICON%</button>
+								<span class="text-muted small IconSummary"></span>
+								<span class="PickIconPreview ml-2 d-none"></span>
+							</div>
+						</div>
 						<hr />
 					</div>
 					<div class="col-auto">
@@ -38,48 +51,52 @@
 						</div>
 					</div>
 					<div class="col-8">
-						<input type="text" class="form-control Accent" placeholder="Accent Colour..." />
+						<input type="text" class="form-control Accent" placeholder="%I18N_PH_ACCENT%" />
 					</div>
 					<div class="col">
 						<select class="form-control AccentPresets">
-							<option value="">Colours...</option>
-							<optgroup label="Presets...">
+							<option value="">%I18N_COLOURS%</option>
+							<optgroup label="%I18N_PRESETS%">
 							</optgroup>
 						</select>
 					</div>
 					<div class="col-12"><hr /></div>
-					<div class="col-auto">
-						<div class="font-size-most-large IconPreview">
-							<i class="codicon codicon-settings-gear"></i>
+					<div class="col-12 FolderIconOptions">
+						<div class="row tight align-items-center">
+							<div class="col-auto">
+								<div class="font-size-most-large IconPreview">
+									<i class="codicon codicon-settings-gear"></i>
+								</div>
+							</div>
+							<div class="col-8">
+								<input type="text" class="form-control Icon" placeholder="%I18N_PH_ICON%" />
+							</div>
+							<div class="col">
+								<select class="form-control IconPresets">
+									<option value="">%I18N_ICONS%</option>
+									<optgroup label="%I18N_CODICONS%">
+									</optgroup>
+								</select>
+							</div>
 						</div>
-					</div>
-					<div class="col-8">
-						<input type="text" class="form-control Icon" placeholder="Icon..." />
-					</div>
-					<div class="col">
-						<select class="form-control IconPresets">
-							<option value="">Icons...</option>
-							<optgroup label="Codicons">
-							</optgroup>
-						</select>
 					</div>
 				</div>
 				<hr />
 			</section>
 			<footer>
-				<div><button class="btn btn-primary Save">Save</button></div>
-				<div><button class="btn btn-dark Cancel">Cancel</button></div>
+				<div><button class="btn btn-primary Save">%I18N_BTN_SAVE%</button></div>
+				<div><button class="btn btn-dark Cancel">%I18N_BTN_CANCEL%</button></div>
 			</footer>
 		</div>
 		<div id="TemplateProjectDelete" class="Dialog d-none">
 			<header>
-				<div class="Titlebar">Remove Project?</div>
+				<div class="Titlebar">%I18N_DLG_REMOVE_PROJECT%</div>
 				<div class="Close"><i class="codicon codicon-close"></i></div>
 			</header>
 			<section>
 				<div class="row">
 					<div class="col-12 mb-2">
-						Are you sure you want to remove this project?
+						%I18N_REMOVE_CONFIRM_BODY%
 					</div>
 					<div class="col-12">
 						<div class="row align-items-center ProjectEntry">
@@ -93,13 +110,13 @@
 				</div>
 			</section>
 			<footer>
-				<div><button class="btn btn-primary Accept">Delete</button></div>
-				<div><button class="btn btn-dark Cancel">Cancel</button></div>
+				<div><button class="btn btn-primary Accept">%I18N_BTN_DELETE%</button></div>
+				<div><button class="btn btn-dark Cancel">%I18N_BTN_CANCEL%</button></div>
 			</footer>
 		</div>
 		<div id="TemplateProjectNew" class="Dialog d-none">
 			<header>
-				<div class="Titlebar">New Project...</div>
+				<div class="Titlebar">%I18N_DLG_NEW_PROJECT%</div>
 				<div class="Close"><i class="codicon codicon-close"></i></div>
 			</header>
 			<section>
@@ -107,13 +124,30 @@
 					<div class="col-12 mb-2 TypeSelector">
 						<div class="row tight">
 							<div class="col-12 mb-2">
-								<input type="text" class="form-control Name" placeholder="Project Name..." />
+								<input type="text" class="form-control Name" placeholder="%I18N_PH_PROJECT_NAME%" />
+							</div>
+							<div class="col-12 mb-2">
+								<div class="font-weight-bold mb-1">%I18N_LABEL_DESCRIPTION%</div>
+								<textarea class="form-control Description" rows="2" placeholder="%I18N_PH_DESCRIPTION%"></textarea>
+							</div>
+							<div class="col-12 mb-2 RowProjectIcon">
+								<div class="font-weight-bold mb-1">%I18N_LABEL_PROJECT_ICON%</div>
+								<div class="d-flex align-items-center flex-wrap">
+									<button type="button" class="btn btn-dark btn-sm mr-2 PickIcon">%I18N_BTN_CHOOSE_ICON%</button>
+									<span class="text-muted small IconSummary"></span>
+									<span class="IconPreview ml-2 d-none"></span>
+								</div>
+							</div>
+							<div class="col-12 mb-2 d-none RowDiskFolderName">
+								<div class="font-weight-bold mb-1">%I18N_DISK_FOLDER_LABEL%</div>
+								<input type="text" class="form-control DiskFolderName" placeholder="%I18N_PH_DISK_FOLDER%" />
+								<div class="text-muted small mt-1">%I18N_DISK_FOLDER_HINT%</div>
 							</div>
 							<div class="col-12 mb-2">
 								<div class="btn-group w-100">
-									<button class="btn btn-dark flex-grow-1" data-show=".TypeNewLocal" data-type="local">Folder</button>
-									<button class="btn btn-dark flex-grow-1" data-show=".TypeNewSSH" data-type="ssh">SSH</button>
-									<button class="btn btn-dark flex-grow-1" data-show=".TypeNewPromode" data-type="promode">Promode</button>
+									<button class="btn btn-dark flex-grow-1" data-show=".TypeNewLocal" data-type="local">%I18N_BTN_FOLDER%</button>
+									<button class="btn btn-dark flex-grow-1" data-show=".TypeNewSSH" data-type="ssh">%I18N_BTN_SSH%</button>
+									<button class="btn btn-dark flex-grow-1" data-show=".TypeNewPromode" data-type="promode">%I18N_BTN_PROMODE%</button>
 								</div>
 							</div>
 						</div>
@@ -121,40 +155,39 @@
 					<div class="col-12 mb-2 d-none TypeNewLocal TypeNewForm">
 						<div class="row">
 							<div class="col">
-								<button class="btn btn-dark btn-block Chooser" data-default="Choose Folder..."></button>
+								<button class="btn btn-dark btn-block Chooser" data-default="%I18N_CHOOSE_FOLDER%"></button>
 							</div>
 						</div>
 					</div>
 					<div class="col-12 mb-2 d-none TypeNewSSH TypeNewForm">
 						<div class="mb-2">
 							<div class="ProjectEntry">
-								Connecting to remote projects requires the Remote Development Extension Pack by Microsoft.
-								Automatic authentication currently depends setting up your .ssh/config file.
+								%I18N_SSH_REMOTE_HELP%
 							</div>
 						</div>
 						<div class="mb-2">
-							<input type="text" class="form-control ShellUser" placeholder="Username..." />
+							<input type="text" class="form-control ShellUser" placeholder="%I18N_PH_USERNAME%" />
 						</div>
 						<div class="mb-2">
-							<input type="text" class="form-control ShellHost" placeholder="Hostname..." />
+							<input type="text" class="form-control ShellHost" placeholder="%I18N_PH_HOSTNAME%" />
 						</div>
 						<div class="mb-2">
-							<input type="text" class="form-control ShellPath" placeholder="Directory..." />
+							<input type="text" class="form-control ShellPath" placeholder="%I18N_PH_DIRECTORY%" />
 						</div>
 					</div>
 					<div class="col-12 mb-2 d-none TypeNewPromode TypeNewForm">
 						<div class="mb-2">
 							<div class="ProjectEntry">
 								<div>
-									<div>Enter the fully qualified URI string that connects to the project. You can use this to connect to anything Code can connect to but I don't know about.</div>
+									<div>%I18N_PROMODE_HELP%</div>
 								</div>
 							</div>
 						</div>
 						<div class="mb-2">
-							<input type="text" class="form-control Promode" placeholder="Fully Qualified Connection String..." />
+							<input type="text" class="form-control Promode" placeholder="%I18N_PH_FQ_CONNECTION%" />
 						</div>
 						<div>
-							<div class="font-weight-bold">Example (SSH):</div>
+							<div class="font-weight-bold">%I18N_EXAMPLE_SSH%</div>
 							<div><tt>
 								vscode-remote://remote-ssh+<em>user</em>@<em>host</em>/<em>path</em>
 							</tt></div>
@@ -163,46 +196,57 @@
 				</div>
 			</section>
 			<footer class="d-none">
-				<div><button class="btn btn-primary Save">Save</button></div>
+				<div><button class="btn btn-primary Save">%I18N_BTN_SAVE%</button></div>
 			</footer>
 		</div>
 		<div id="TemplateFolderNew" class="Dialog d-none">
 			<header>
-				<div class="Titlebar">New Folder...</div>
+				<div class="Titlebar">%I18N_DLG_NEW_FOLDER%</div>
 				<div class="Close"><i class="codicon codicon-close"></i></div>
 			</header>
 			<section>
 				<div class="row">
 					<div class="col-12 mb-2">
-						<input type="text" class="form-control Name" placeholder="Folder Name..." />
+						<input type="text" class="form-control Name" placeholder="%I18N_PH_FOLDER_NAME%" />
 					</div>
 				</div>
 			</section>
 			<footer>
-				<div><button class="btn btn-primary Save">Save</button></div>
+				<div><button class="btn btn-primary Save">%I18N_BTN_SAVE%</button></div>
 			</footer>
 		</div>
 		<div id="TemplateDashboardConfig" class="Dialog d-none">
 			<header>
-				<div class="Titlebar">Easy Dashboard Settings</div>
+				<div class="Titlebar">%I18N_DLG_DASHBOARD_CONFIG%</div>
 				<div class="Close"><i class="codicon codicon-close"></i></div>
 			</header>
 			<section>
 				<div class="row">
 					<div class="col-12">
-						<div class="font-weight-bold mb-2">Easy Dashboard Title</div>
-						<input type="text" class="form-control Title" placeholder="Easy Dashboard Title..." />
+						<div class="font-weight-bold mb-2">%I18N_LABEL_DASH_TITLE%</div>
+						<input type="text" class="form-control Title" placeholder="%I18N_PH_DASH_TITLE%" />
+					</div>
+					<div class="col-12"><hr /></div>
+					<div class="col-12">
+						<div class="font-weight-bold mb-2">%I18N_LABEL_PROJECTS_ROOT%</div>
+						<div class="text-muted small mb-2">%I18N_HELP_PROJECTS_ROOT%</div>
+						<div class="input-group">
+							<input type="text" class="form-control ProjectsRoot" placeholder="%I18N_PH_PROJECTS_ROOT%" />
+							<div class="input-group-append">
+								<button type="button" class="btn btn-dark PickProjectsRoot">%I18N_BTN_BROWSE%</button>
+							</div>
+						</div>
 					</div>
 					<div class="col-12"><hr /></div>
 					<div class="col-12">
 						<div class="row align-items-center">
 							<div class="col">
-								<div class="font-weight-bold">Open dashboard when opening a new window with a blank workspace.</div>
+								<div class="font-weight-bold">%I18N_LABEL_OPEN_ON_NEW_WIN%</div>
 							</div>
 							<div class="col-auto">
 								<select class="form-control OpenOnNewWindow">
-									<option value="1">Yes</option>
-									<option value="0">No</option>
+									<option value="1">%I18N_YES%</option>
+									<option value="0">%I18N_NO%</option>
 								</select>
 							</div>
 						</div>
@@ -211,12 +255,12 @@
 					<div class="col-12">
 						<div class="row align-items-center">
 							<div class="col">
-								<div class="font-weight-bold">Open projects in new windows by default.</div>
+								<div class="font-weight-bold">%I18N_LABEL_OPEN_NEW_WINDOW%</div>
 							</div>
 							<div class="col-auto">
 								<select class="form-control OpenInNewWindow">
-									<option value="1">Yes</option>
-									<option value="0">No</option>
+									<option value="1">%I18N_YES%</option>
+									<option value="0">%I18N_NO%</option>
 								</select>
 							</div>
 						</div>
@@ -225,12 +269,12 @@
 					<div class="col-12">
 						<div class="row align-items-center">
 							<div class="col">
-								<div class="font-weight-bold">Show paths on project tiles.</div>
+								<div class="font-weight-bold">%I18N_LABEL_SHOW_PATHS%</div>
 							</div>
 							<div class="col-auto">
 								<select class="form-control ShowPaths">
-									<option value="1">Yes</option>
-									<option value="0">No</option>
+									<option value="1">%I18N_YES%</option>
+									<option value="0">%I18N_NO%</option>
 								</select>
 							</div>
 						</div>
@@ -239,12 +283,26 @@
 					<div class="col-12">
 						<div class="row align-items-center">
 							<div class="col">
-								<div class="font-weight-bold">Rounded corners.</div>
+								<div class="font-weight-bold">%I18N_LABEL_SHOW_ICONS%</div>
+							</div>
+							<div class="col-auto">
+								<select class="form-control ShowProjectIcons">
+									<option value="1">%I18N_YES%</option>
+									<option value="0">%I18N_NO%</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="col-12"><hr /></div>
+					<div class="col-12">
+						<div class="row align-items-center">
+							<div class="col">
+								<div class="font-weight-bold">%I18N_LABEL_ROUNDED%</div>
 							</div>
 							<div class="col-auto">
 								<select class="form-control RoundedCorners">
-									<option value="1">Yes</option>
-									<option value="0">No</option>
+									<option value="1">%I18N_YES%</option>
+									<option value="0">%I18N_NO%</option>
 								</select>
 							</div>
 						</div>
@@ -253,31 +311,31 @@
 					<div class="col-12">
 						<div class="row align-items-center">
 							<div class="col">
-								<div class="font-weight-bold">Easy Dashboard text size:</div>
+								<div class="font-weight-bold">%I18N_LABEL_TEXT_SIZE%</div>
 							</div>
 							<div class="col-auto">
 								<select class="form-control FontSize">
-									<option value="font-size-mostest-large">Mostest Large</option>
-									<option value="font-size-most-large">Most Large</option>
-									<option value="font-size-largerest">Largerest</option>
-									<option value="font-size-largerer">Largerer</option>
-									<option value="font-size-larger">Larger</option>
-									<option value="font-size-large">Large</option>
-									<option value="font-size-normal">Normal (Default)</option>
-									<option value="font-size-small">Small</option>
-									<option value="font-size-smaller">Smaller</option>
-									<option value="font-size-smallerer">Smallerer</option>
-									<option value="font-size-smallerest">Smallerest</option>
-									<option value="font-size-most-small">Most Small</option>
-									<option value="font-size-mostest-small">Mostest Small</option>
+									<option value="font-size-mostest-large">%I18N_FONT_MOSTEST_LARGE%</option>
+									<option value="font-size-most-large">%I18N_FONT_MOST_LARGE%</option>
+									<option value="font-size-largerest">%I18N_FONT_LARGEREST%</option>
+									<option value="font-size-largerer">%I18N_FONT_LARGERER%</option>
+									<option value="font-size-larger">%I18N_FONT_LARGER%</option>
+									<option value="font-size-large">%I18N_FONT_LARGE%</option>
+									<option value="font-size-normal">%I18N_FONT_NORMAL%</option>
+									<option value="font-size-small">%I18N_FONT_SMALL%</option>
+									<option value="font-size-smaller">%I18N_FONT_SMALLER%</option>
+									<option value="font-size-smallerer">%I18N_FONT_SMALLERER%</option>
+									<option value="font-size-smallerest">%I18N_FONT_SMALLEREST%</option>
+									<option value="font-size-most-small">%I18N_FONT_MOST_SMALL%</option>
+									<option value="font-size-mostest-small">%I18N_FONT_MOSTEST_SMALL%</option>
 								</select>
 							</div>
 						</div>
 					</div>
 					<div class="col-12"><hr /></div>
 					<div class="col-12">
-						<div class="font-weight-bold mb-2">Folder Column Sizing</div>
-						<div class="text-muted mb-2">Use the preset number of columns buttons or craft your own using Bootstrap classes.</div>
+						<div class="font-weight-bold mb-2">%I18N_FOLDER_COL_SIZING%</div>
+						<div class="text-muted mb-2">%I18N_PRESET_COL_HELP%</div>
 						<div class="row tight mb-2">
 							<div class="col col-sm mb-2">
 								<button class="btn btn-dark btn-block text-nobreak DashboardFolderPreset" data-value="col-12">1</button>
@@ -295,17 +353,17 @@
 								<button class="btn btn-dark btn-block text-nobreak DashboardFolderPreset" data-value="col-4">3</button>
 							</div>
 							<div class="col-12 col-sm-auto mb-2">
-								<button class="btn btn-dark btn-block text-nobreak DashboardFolderPreset" data-value="col-12 col-sm-6 col-md-4 col-lg-3">Responsive AF</button>
+								<button class="btn btn-dark btn-block text-nobreak DashboardFolderPreset" data-value="col-12 col-sm-6 col-md-4 col-lg-3">%I18N_RESPONSIVE_AF%</button>
 							</div>
 						</div>
 						<div class="mb-2">
-							<input type="text" class="form-control FolderSizing" placeholder="Folder Sizing..." />
+							<input type="text" class="form-control FolderSizing" placeholder="%I18N_PH_FOLDER_SIZING%" />
 						</div>
 					</div>
 					<div class="col-12"><hr /></div>
 					<div class="col-12">
-						<div class="font-weight-bold mb-2">Project Column Sizing</div>
-						<div class="text-muted mb-2">Use the preset number of columns buttons or craft your own using Bootstrap classes.</div>
+						<div class="font-weight-bold mb-2">%I18N_PROJECT_COL_SIZING%</div>
+						<div class="text-muted mb-2">%I18N_PRESET_COL_HELP%</div>
 						<div class="row tight mb-2">
 							<div class="col col-sm mb-2">
 								<button class="btn btn-dark btn-block text-nobreak DashboardColumnPreset" data-value="col-12">1</button>
@@ -323,18 +381,18 @@
 								<button class="btn btn-dark btn-block text-nobreak DashboardColumnPreset" data-value="col-4">3</button>
 							</div>
 							<div class="col-12 col-sm-auto mb-2">
-								<button class="btn btn-dark btn-block text-nobreak DashboardColumnPreset" data-value="col-12 col-sm-6 col-md-4 col-lg-3">Responsive AF</button>
+								<button class="btn btn-dark btn-block text-nobreak DashboardColumnPreset" data-value="col-12 col-sm-6 col-md-4 col-lg-3">%I18N_RESPONSIVE_AF%</button>
 							</div>
 						</div>
 						<div class="mb-2">
-							<input type="text" class="form-control ColumnSizing" placeholder="Project Sizing..." />
+							<input type="text" class="form-control ColumnSizing" placeholder="%I18N_PH_PROJECT_SIZING%" />
 						</div>
 					</div>
 				</div>
 			</section>
 			<footer>
-				<div><button class="btn btn-primary Save">Save</button></div>
-				<div><button class="btn btn-dark Cancel">Cancel</button></div>
+				<div><button class="btn btn-primary Save">%I18N_BTN_SAVE%</button></div>
+				<div><button class="btn btn-dark Cancel">%I18N_BTN_CANCEL%</button></div>
 			</footer>
 		</div>
 	</div>
@@ -342,24 +400,29 @@
 	<div id="Dashboard">
 		<div id="Toolbar" class="Toolbar">
 			<div class="row tight align-items-center">
-				<div class="col">
-					<span class="DashboardTitle">Easy Dashboard</span>
+				<div class="col-auto">
+					<button class="btn btn-sm btn-dark CmdCloseAll" title="%I18N_TT_CLOSE_ALL%"><i class="codicon codicon-fold-up"></i></button>
 				</div>
 				<div class="col-auto">
-					<button class="btn btn-sm btn-dark CmdCloseAll" title="Close All Folders."><i class="codicon codicon-fold-up"></i></button>
+					<button class="btn btn-sm btn-dark CmdOpenFullDashboard" title="%I18N_TT_OPEN_FULL%"><i class="codicon codicon-dashboard"></i></button>
 				</div>
 				<div class="col-auto">
-					<button class="btn btn-sm btn-dark CmdOpenAll" title="Open All Folders."><i class="codicon codicon-fold-down"></i></button>
+					<button class="btn btn-sm btn-dark CmdOpenAll" title="%I18N_TT_OPEN_ALL%"><i class="codicon codicon-fold-down"></i></button>
 				</div>
 				<div class="col-auto opacity-10">|</div>
 				<div class="col-auto">
-					<button class="btn btn-sm btn-dark CmdProjectNew" title="New Project..."><i class="codicon codicon-add"></i></button>
+					<button class="btn btn-sm btn-dark CmdProjectNew" title="%I18N_TT_NEW_PROJECT%"><i class="codicon codicon-add"></i></button>
 				</div>
 				<div class="col-auto">
-					<button class="btn btn-sm btn-dark CmdFolderNew" title="New Folder..."><i class="codicon codicon-new-folder"></i></button>
+					<button class="btn btn-sm btn-dark CmdFolderNew" title="%I18N_TT_NEW_FOLDER%"><i class="codicon codicon-new-folder"></i></button>
 				</div>
 				<div class="col-auto">
-					<button class="btn btn-sm btn-dark CmdDashboardConfig" title="Easy Dashboard Settings..."><i class="codicon codicon-settings-gear"></i></button>
+					<button class="btn btn-sm btn-dark CmdDashboardConfig" title="%I18N_TT_SETTINGS%"><i class="codicon codicon-settings-gear"></i></button>
+				</div>
+			</div>
+			<div class="row tight align-items-center mb-2 mt-1">
+				<div class="col-12">
+					<input type="search" id="DashboardSearch" class="form-control form-control-sm" autocomplete="off" />
 				</div>
 			</div>
 		</div>
@@ -369,57 +432,57 @@
 				<div class="ProjectEntry">
 					<div class="ProjectInfo row tight align-items-center">
 						<div class="col-auto Fold">
-							<button class="btn btn-sm btn-dark" title="Open/Close Folder"><i class="codicon codicon-plus"></i></button>
-							<button class="btn btn-sm btn-dark" title="Open/Close Folder"><i class="codicon codicon-remove"></i></button>
+							<button class="btn btn-sm btn-dark" title="%I18N_TT_FOLDER_TOGGLE%"><i class="codicon codicon-plus"></i></button>
+							<button class="btn btn-sm btn-dark" title="%I18N_TT_FOLDER_TOGGLE%"><i class="codicon codicon-remove"></i></button>
 						</div>
 						<div class="col-auto Icon pl-2 pr-2">
 							<i class="codicon"></i>
 						</div>
 						<div class="col Info">
-							<div class="Name">Project Name</div>
+							<div class="Name">%I18N_TMPL_FOLDER_NAME%</div>
 						</div>
 						<div class="col-auto WhenFolderHovered">
-							<button type="button" class="btn btn-sm btn-dark NewProject" title="New Project...">
+							<button type="button" class="btn btn-sm btn-dark NewProject" title="%I18N_MENU_NEW_PROJECT%">
 								<i class="codicon codicon-plus"></i>
 							</button>
 						</div>
 						<div class="col-auto WhenFolderHovered">
 							<div class="dropdown">
-								<button type="button" class="btn btn-sm btn-dark Config" data-toggle="dropdown" title="Project Settings...">
+								<button type="button" class="btn btn-sm btn-dark Config" data-toggle="dropdown" title="%I18N_TT_PROJECT_SETTINGS%">
 									<i class="codicon codicon-settings-gear"></i>
 								</button>
 								<div class="dropdown-menu dropdown-menu-right p-2 text-nowrap">
 									<div class="row tight">
 										<div class="col">
-											<button class="btn btn-block btn-dark Edit" title="Edit project settings."><i class="codicon codicon-edit"></i></button>
+											<button class="btn btn-block btn-dark Edit" title="%I18N_TT_EDIT_PROJECT%"><i class="codicon codicon-edit"></i></button>
 										</div>
 										<div class="col-auto">
-											<button class="btn btn-block btn-danger Delete" title="Delete project."><i class="codicon codicon-close"></i></button>
+											<button class="btn btn-block btn-danger Delete" title="%I18N_TT_DELETE_PROJECT%"><i class="codicon codicon-close"></i></button>
 										</div>
 										<div class="col-12"><hr /></div>
 										<div class="col-12 font-size-smallerer">
-											<div class="font-weight-bold text-uppercase mb-2">Project Colours...</div>
+											<div class="font-weight-bold text-uppercase mb-2">%I18N_MENU_COLOURS%</div>
 											<div class="row tight justify-content-center">
 												<div class="col">
-													<button class="btn btn-block btn-dark FolderColourSet" title="Set all projects in this folder to the folder colour."><i class="codicon codicon-check"></i></button>
+													<button class="btn btn-block btn-dark FolderColourSet" title="%I18N_TT_FOLDER_COLOUR_SET%"><i class="codicon codicon-check"></i></button>
 												</div>
 												<div class="col">
-													<button class="btn btn-block btn-dark FolderColourRow" title="Set all the project colours to a sequence starting with the folder colour."><i class="codicon codicon-check-all"></i></button>
+													<button class="btn btn-block btn-dark FolderColourRow" title="%I18N_TT_FOLDER_COLOUR_ROW%"><i class="codicon codicon-check-all"></i></button>
 												</div>
 												<div class="col">
-													<button class="btn btn-block btn-dark FolderColourRNG" title="Set all the projects to random colours based on the folder colour."><i class="codicon codicon-wand"></i></button>
+													<button class="btn btn-block btn-dark FolderColourRNG" title="%I18N_TT_FOLDER_COLOUR_RNG%"><i class="codicon codicon-wand"></i></button>
 												</div>
 											</div>
 										</div>
 										<div class="col-12"><hr /></div>
 										<div class="col-12 font-size-smallerer">
-											<div class="font-weight-bold text-uppercase mb-2">Project Sorting...</div>
+											<div class="font-weight-bold text-uppercase mb-2">%I18N_MENU_SORT%</div>
 											<div class="row tight justify-content-center">
 												<div class="col">
-													<button class="btn btn-block btn-dark FolderSortDesc" title="Sort projects by name A-Z."><i class="codicon codicon-arrow-down"></i></button>
+													<button class="btn btn-block btn-dark FolderSortDesc" title="%I18N_TT_SORT_DESC%"><i class="codicon codicon-arrow-down"></i></button>
 												</div>
 												<div class="col">
-													<button class="btn btn-block btn-dark FolderSortAsc" title="Sort projects by name Z-A."><i class="codicon codicon-arrow-up"></i></button>
+													<button class="btn btn-block btn-dark FolderSortAsc" title="%I18N_TT_SORT_ASC%"><i class="codicon codicon-arrow-up"></i></button>
 												</div>
 											</div>
 										</div>
@@ -428,13 +491,13 @@
 							</div>
 						</div>
 						<div class="col-auto WhenFolderHovered">
-							<button type="button" class="btn btn-sm btn-dark Reorder" title="Drag To Reorder">
+							<button type="button" class="btn btn-sm btn-dark Reorder" title="%I18N_TT_REORDER%">
 								<i class="codicon codicon-three-bars"></i>
 							</button>
 						</div>
 					</div>
 					<div class="row Projects">
-						Projects Listing...
+						%I18N_TMPL_PROJECTS_LISTING%
 					</div>
 				</div>
 			</div>
@@ -444,8 +507,8 @@
 					<div class="ProjectInfo row tight align-items-center">
 						<div class="col-auto Icon"><i class="codicon font-size-most-large"></i></div>
 						<div class="col Info">
-							<div class="Name">Project Name</div>
-							<div class="Path">Project Path</div>
+							<div class="Name">%I18N_TMPL_PROJ_NAME%</div>
+							<div class="Path">%I18N_TMPL_PROJ_PATH%</div>
 						</div>
 						<div class="col-auto WhenProjectHovered">
 							<div class="dropdown">
@@ -455,10 +518,10 @@
 								<div class="dropdown-menu dropdown-menu-right p-2">
 									<div class="row tight">
 										<div class="col-12 mb-2">
-											<button class="btn btn-block btn-dark text-nowrap OpenProject" data-open-new-window="0">Open</button>
+											<button class="btn btn-block btn-dark text-nowrap OpenProject" data-open-new-window="0">%I18N_BTN_OPEN%</button>
 										</div>
 										<div class="col-12 mb-2">
-											<button class="btn btn-block btn-dark text-nowrap OpenProject" data-open-new-window="1">Open in New Window</button>
+											<button class="btn btn-block btn-dark text-nowrap OpenProject" data-open-new-window="1">%I18N_BTN_OPEN_NEW_WIN%</button>
 										</div>
 										<div class="col">
 											<button class="btn btn-block btn-dark Edit"><i class="codicon codicon-gear"></i></button>
@@ -481,7 +544,7 @@
 
 		</div>
 		<div id="Debug" class="d-none">
-			<h4>Debug:</h4>
+			<h4>%I18N_DEBUG%</h4>
 			<code></code>
 		</div>
 	</div>

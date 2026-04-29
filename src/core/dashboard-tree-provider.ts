@@ -3,21 +3,20 @@ import * as vscode from 'vscode';
 import Config from './config';
 import ProjectEntry from './project-entry';
 import ProjectFolder from './project-folder';
+import { uiT } from './ui-locale';
 
-/** Titre toujours affiché en tête de la vue */
-export const TITLE_ITEM = Symbol('title');
-/** Section des 10 derniers projets ouverts */
-export const RECENT_SECTION = Symbol('recent');
-/** Placeholder affiché quand il n’y a aucun projet */
+/** Placeholder affiché quand il n’y a aucun projet / aucun récent */
 export const EMPTY_PLACEHOLDER = Symbol('empty');
 
-/** Wrapper pour afficher un projet dans "Derniers ouverts" avec un id unique (évite déduplication) */
+/** Wrapper pour afficher un projet dans « Derniers projets ouverts » avec un id unique (évite déduplication) */
 export interface RecentEntryWrapper {
 	readonly _recent: true;
 	entry: ProjectEntry;
 }
 
-export type TreeItem = ProjectFolder | ProjectEntry | RecentEntryWrapper | typeof TITLE_ITEM | typeof RECENT_SECTION | typeof EMPTY_PLACEHOLDER;
+export type TreePane = 'recent' | 'projects';
+
+export type TreeItem = ProjectFolder | ProjectEntry | RecentEntryWrapper | typeof EMPTY_PLACEHOLDER;
 
 const RECENT_MAX = 10;
 
@@ -30,10 +29,59 @@ export class DashboardTreeProvider implements vscode.TreeDataProvider<TreeItem> 
 	private _onDidChangeTreeData = new vscode.EventEmitter<TreeItem | undefined | null | void>();
 	readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
-	constructor(private conf: Config) {}
+	constructor(
+		private conf: Config,
+		private readonly pane: TreePane,
+		private readonly getSearchFilter: () => string
+	) {}
 
 	refresh(): void {
 		this._onDidChangeTreeData.fire();
+	}
+
+	private normalizeFilter(raw: string): string {
+		return raw.trim().toLowerCase();
+	}
+
+	private entryMatchesQuery(entry: ProjectEntry, qNorm: string): boolean {
+		if (!qNorm) {
+			return true;
+		}
+		if (entry.name.toLowerCase().includes(qNorm)) {
+			return true;
+		}
+		if (entry.path.toLowerCase().includes(qNorm)) {
+			return true;
+		}
+		if (entry.description && entry.description.toLowerCase().includes(qNorm)) {
+			return true;
+		}
+		return false;
+	}
+
+	private folderNameMatchesQuery(folder: ProjectFolder, qNorm: string): boolean {
+		if (!qNorm) {
+			return true;
+		}
+		return folder.name.toLowerCase().includes(qNorm);
+	}
+
+	/** Sous-arborescence filtrée (qNorm déjà normalisé, non vide) */
+	private filterItemsRaw(items: (ProjectFolder | ProjectEntry)[], qNorm: string): (ProjectFolder | ProjectEntry)[] {
+		const out: (ProjectFolder | ProjectEntry)[] = [];
+		for (const item of items) {
+			if (item instanceof ProjectEntry) {
+				if (this.entryMatchesQuery(item, qNorm)) {
+					out.push(item);
+				}
+			} else {
+				const childFiltered = this.filterItemsRaw(item.projects, qNorm);
+				if (this.folderNameMatchesQuery(item, qNorm) || childFiltered.length > 0) {
+					out.push(item);
+				}
+			}
+		}
+		return out;
 	}
 
 	/** Dossiers avant projets, puis tri selon sortMode */
@@ -79,35 +127,67 @@ export class DashboardTreeProvider implements vscode.TreeDataProvider<TreeItem> 
 	}
 
 	getChildren(element?: TreeItem): TreeItem[] {
+		const qNorm = this.normalizeFilter(this.getSearchFilter());
+		if (this.pane === 'recent') {
+			if (element !== undefined) {
+				return [];
+			}
+			let recent = this.getRecentEntries();
+			if (qNorm) {
+				recent = recent.filter(w => this.entryMatchesQuery(w.entry, qNorm));
+			}
+			if (recent.length === 0) {
+				return [EMPTY_PLACEHOLDER];
+			}
+			return recent;
+		}
+
+		// projects
 		if (element === undefined) {
 			const db = this.conf.database;
-			const rest: TreeItem[] = db.length === 0 ? [EMPTY_PLACEHOLDER] : this.sortItems(db);
-			return [TITLE_ITEM, RECENT_SECTION, ...rest];
-		}
-		if (element === RECENT_SECTION) {
-			return this.getRecentEntries();
+			if (!qNorm) {
+				return db.length === 0 ? [EMPTY_PLACEHOLDER] : this.sortItems(db);
+			}
+			const filtered = this.filterItemsRaw(db, qNorm);
+			return filtered.length === 0 ? [EMPTY_PLACEHOLDER] : this.sortItems(filtered);
 		}
 		if (element instanceof ProjectFolder) {
-			return this.sortItems(element.projects);
+			if (!qNorm) {
+				return this.sortItems(element.projects);
+			}
+			if (this.folderNameMatchesQuery(element, qNorm)) {
+				return this.sortItems(element.projects);
+			}
+			return this.sortItems(this.filterItemsRaw(element.projects, qNorm));
 		}
 		return [];
 	}
 
 	getTreeItem(element: TreeItem): vscode.TreeItem {
-		if (element === TITLE_ITEM) {
-			const item = new vscode.TreeItem("Easy Dashboard", vscode.TreeItemCollapsibleState.None);
-			item.description = "Projets et dossiers";
-			item.iconPath = new vscode.ThemeIcon("project");
-			return item;
-		}
-		if (element === RECENT_SECTION) {
-			const recent = this.getRecentEntries();
+		if (element === EMPTY_PLACEHOLDER) {
+			const qNorm = this.normalizeFilter(this.getSearchFilter());
+			const searching = Boolean(qNorm);
+			if (this.pane === 'recent') {
+				const item = new vscode.TreeItem(
+					searching ? uiT('No results') : uiT('No recent projects yet'),
+					vscode.TreeItemCollapsibleState.None
+				);
+				item.id = searching ? 'easy-dashboard-empty-recent-search' : 'easy-dashboard-empty-recent';
+				item.description = searching
+					? uiT('Try changing or clearing the search')
+					: uiT('Open a project from the Projects view');
+				item.iconPath = new vscode.ThemeIcon(searching ? 'search' : 'history');
+				return item;
+			}
 			const item = new vscode.TreeItem(
-				"Derniers ouverts",
-				recent.length > 0 ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None
+				searching ? uiT('No results') : uiT('No projects yet'),
+				vscode.TreeItemCollapsibleState.None
 			);
-			item.description = recent.length > 0 ? `${recent.length} projet${recent.length > 1 ? 's' : ''}` : "Aucune ouverture récente";
-			item.iconPath = new vscode.ThemeIcon("history");
+			item.id = searching ? 'easy-dashboard-empty-search' : 'easy-dashboard-empty-projects';
+			item.description = searching
+				? uiT('Try changing or clearing the search')
+				: uiT('Use the toolbar or context menu to add a folder or project');
+			item.iconPath = new vscode.ThemeIcon(searching ? 'search' : 'folder-library');
 			return item;
 		}
 		if (isRecentEntryWrapper(element)) {
@@ -117,13 +197,10 @@ export class DashboardTreeProvider implements vscode.TreeDataProvider<TreeItem> 
 			item.contextValue = 'easy-dashboard-project';
 			item.command = { command: 'easy-dashboard.openProject', title: entry.name, arguments: [entry.id] };
 			if (entry.description) item.description = entry.description;
-			if (entry.icon) item.iconPath = new vscode.ThemeIcon(entry.icon);
-			return item;
-		}
-		if (element === EMPTY_PLACEHOLDER) {
-			const item = new vscode.TreeItem("Aucun projet", vscode.TreeItemCollapsibleState.None);
-			item.description = "Cliquez sur + pour ajouter un dossier ou un projet";
-			item.iconPath = new vscode.ThemeIcon("folder-library");
+			if (this.conf.showProjectIcons) {
+				if (entry.iconPngPath) item.iconPath = vscode.Uri.file(entry.iconPngPath);
+				else if (entry.icon) item.iconPath = new vscode.ThemeIcon(entry.icon);
+			}
 			return item;
 		}
 		if (element instanceof ProjectFolder) {
@@ -136,7 +213,6 @@ export class DashboardTreeProvider implements vscode.TreeDataProvider<TreeItem> 
 			item.iconPath = new vscode.ThemeIcon('folder');
 			return item;
 		}
-		// ProjectEntry (element n’est plus ProjectFolder, RECENT_SECTION, wrapper ni EMPTY_PLACEHOLDER)
 		const entry = element as ProjectEntry;
 		const item = new vscode.TreeItem(
 			entry.name,
@@ -150,7 +226,10 @@ export class DashboardTreeProvider implements vscode.TreeDataProvider<TreeItem> 
 			arguments: [entry.id]
 		};
 		if (entry.description) item.description = entry.description;
-		if (entry.icon) item.iconPath = new vscode.ThemeIcon(entry.icon);
+		if (this.conf.showProjectIcons) {
+			if (entry.iconPngPath) item.iconPath = vscode.Uri.file(entry.iconPngPath);
+			else if (entry.icon) item.iconPath = new vscode.ThemeIcon(entry.icon);
+		}
 		return item;
 	}
 }

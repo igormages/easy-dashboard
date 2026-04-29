@@ -148,7 +148,7 @@ class Folder {
 
 		self.el
 		.on('mouseleave',function(){
-			jQuery('*[data-toggle=dropdown')
+			jQuery('[data-toggle="dropdown"]')
 			.dropdown('hide');
 			return;
 		})
@@ -161,21 +161,23 @@ class Folder {
 	fillWithProjects() {
 
 		let self = this;
+		const FolderCtor = this.constructor;
 
 		self.projects.empty();
 
 		for(const item of self.item.projects) {
-			if(typeof item.path === 'undefined')
-			continue;
+			if(typeof item.path === 'undefined') {
+				self.projects.append((new FolderCtor(self.api, item)).el);
+			} else {
+				let project = new Project(
+					self.api,
+					item,
+					self.id
+				);
 
-			let project = new Project(
-				self.api,
-				item,
-				self.id
-			);
-
-			self.projects
-			.append(project.el);
+				self.projects
+				.append(project.el);
+			}
 		}
 
 		return;
@@ -248,11 +250,7 @@ class Folder {
 			if(target.hasClass('Project')) {
 				//target.before(self.el);
 
-				if(pid !== null)
-				self.api.send(new Message('projectmove', { id: self.id, before: pid }));
-
-				else
-				self.api.send(new Message('projectmove', { id: self.id, before: tid }));
+				self.api.send(new Message('projectmove', { id: self.id, before: tid, into: pid }));
 
 				return false;
 			}

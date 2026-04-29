@@ -37,8 +37,15 @@ class Project {
 		self.boxEntry
 		.css('border-color', self.item.accent);
 
-		self.textIcon
-		.addClass(`${self.item.icon}`);
+		if (self.api.showProjectIcons !== false) {
+			if (self.item.iconPngUri) {
+				self.textIcon.parent().empty().append(jQuery('<img />').attr('src', self.item.iconPngUri).css({ width: '1.5em', height: '1.5em', objectFit: 'contain' }));
+			} else {
+				self.textIcon.addClass(self.item.icon || '');
+			}
+		} else {
+			self.textIcon.parent().addClass('d-none');
+		}
 
 		self.textName
 		.text(self.item.name);
@@ -79,7 +86,7 @@ class Project {
 		.addClass(`${this.api.columnSizing} ${self.el.attr('class')}`)
 		.on('mouseleave',function(){
 			// force close drop downs any time we leave an object.
-			jQuery('*[data-toggle=dropdown')
+			jQuery('[data-toggle="dropdown"]')
 			.dropdown('hide');
 			return;
 		});
@@ -111,7 +118,8 @@ class Project {
 		(self.el)
 		.on('mousedown.open', function(ev1) {
 			jQuery(this)
-			.on('mouseup.open', function(ev2) {
+			.off('mouseup.open')
+			.one('mouseup.open', function(ev2) {
 				let openNewWindow = !!parseInt(
 					jQuery(this)
 					.attr('data-open-new-window')
@@ -154,7 +162,7 @@ class Project {
 
 	getIcon() {
 
-		if(self.item.path.match(/^file:/))
+		if(this.item.path.match(/^file:/))
 		return 'codicon-folder';
 
 		return 'codicon-remote-explorer';
