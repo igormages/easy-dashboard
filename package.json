@@ -1,7 +1,7 @@
 {
 	"name": "easy-dashboard",
-	"version": "1.1.88",
-	"displayName": "Dashboard (1.1.88)",
+	"version": "1.1.98",
+	"displayName": "Dashboard (1.1.98)",
 	"description": "%easyDashboard.extension.description%",
 	"publisher": "igormages",
 	"keywords": [
@@ -211,6 +211,11 @@
 					"default": true,
 					"description": "%easyDashboard.config.openOnNewWindow%"
 				},
+				"easy-dashboard.prewarmDashboard": {
+					"type": "boolean",
+					"default": true,
+					"description": "%easyDashboard.config.prewarmDashboard%"
+				},
 				"easy-dashboard.openInNewWindow": {
 					"type": "boolean",
 					"default": true,
@@ -260,19 +265,8 @@
 				"easy-dashboard.viewMode": {
 					"type": "string",
 					"default": "grid",
-					"enum": ["grid", "list"],
+					"enum": ["grid", "list", "tree"],
 					"description": "%easyDashboard.config.viewMode%"
-				},
-				"easy-dashboard.chartVisible": {
-					"type": "boolean",
-					"default": true,
-					"description": "%easyDashboard.config.chartVisible%"
-				},
-				"easy-dashboard.filterMode": {
-					"type": "string",
-					"default": "all",
-					"enum": ["all", "today", "week", "month"],
-					"description": "%easyDashboard.config.filterMode%"
 				},
 				"easy-dashboard.uiLocale": {
 					"type": "string",
@@ -306,14 +300,6 @@
 					"icon": "local/gfx/icon.svg",
 					"visibility": "visible",
 					"contextualTitle": "%easyDashboard.view.recent.contextualTitle%"
-				},
-				{
-					"id": "easy-dashboard-activity-webview",
-					"type": "webview",
-					"name": "%easyDashboard.view.activity.name%",
-					"icon": "local/gfx/icon.svg",
-					"visibility": "visible",
-					"contextualTitle": "%easyDashboard.view.activity.contextualTitle%"
 				},
 				{
 					"id": "easy-dashboard-projects-tree",

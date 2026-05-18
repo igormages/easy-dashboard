@@ -19,8 +19,6 @@ import Message from './message';
 import ProjectEntry from './project-entry';
 import ProjectFolder from './project-folder';
 import { pickProjectIcon } from './project-icons';
-import { ActivityTracker } from './activity-tracker';
-import { LineCounter } from './line-counter';
 import { slugifyFromDisplayName } from './project-slug';
 
 type ProjectLike = ProjectEntry|ProjectFolder|null;
@@ -50,22 +48,19 @@ class Dashboard {
 	public panel:
 	vscode.WebviewPanel|undefined;
 
-	/** Vue latérale « Activité » (même graphique que le dashboard). */
-	private activityWebviewView: vscode.WebviewView | undefined;
-
 	public ext:
 	vscode.ExtensionContext;
 
 	public conf:
 	Config;
 
-	private tracker?: ActivityTracker;
-	private lineCounter?: LineCounter;
-
 	/** Après chargement initial du webview, ouvre le dialogue « nouveau projet » (parent = dossier ou racine). */
 	private pendingOpenProjectNewParent: string | null | false = false;
 
 	private onTreeDataChanged?: () => void;
+
+	/** Le payload `i18n` est volumineux et stable : on ne le pousse qu'une fois par webview (et on reset au changement de locale). */
+	private i18nSentToPanel = false;
 
 	////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////
@@ -80,24 +75,15 @@ class Dashboard {
 		if (this.conf.openOnNewWindow) {
 			setTimeout(() => this.tryOpenOnNewWindow(), 600);
 		}
+		if (this.conf.prewarmDashboard) {
+			setTimeout(() => this.tryPrewarmPanel(), 1200);
+		}
 
 		return;
 	}
 
-	public setActivityTracker(tracker: ActivityTracker) {
-		this.tracker = tracker;
-	}
-
-	public setLineCounter(lineCounter: LineCounter) {
-		this.lineCounter = lineCounter;
-	}
-
 	public setOnTreeDataChanged(handler: () => void): void {
 		this.onTreeDataChanged = handler;
-	}
-
-	public setActivityWebviewView(view: vscode.WebviewView | undefined): void {
-		this.activityWebviewView = view;
 	}
 
 	/**
@@ -119,6 +105,14 @@ class Dashboard {
 		if (typeof vscode.workspace.name !== 'undefined') return;
 		this.open({ preserveFocus: true });
 		vscode.commands.executeCommand('workbench.view.extension.easy-dashboard-sidebar');
+	}
+
+	private tryPrewarmPanel(): void {
+		if (!this.conf.prewarmDashboard) return;
+		if (this.panel) return;
+		// In blank windows, openOnNewWindow already handles this flow.
+		if (typeof vscode.workspace.name === 'undefined') return;
+		this.open({ preserveFocus: true });
 	}
 
 	////////////////////////////////////////////////////////////////
@@ -227,6 +221,7 @@ class Dashboard {
 			return;
 		}
 		this.panel.title = uiT('Easy Dashboard');
+		this.i18nSentToPanel = false;
 		void this.onHey(new Message('hey', null));
 	}
 
@@ -239,31 +234,26 @@ class Dashboard {
 		if(!this.panel)
 		return '';
 
-		return this.buildWebviewPageHtml(this.panel.webview, { activityMode: false });
-	}
-
-	/** Document HTML pour la vue latérale Activité (bundle avec <code>?mode=activity</code>). */
-	public generateActivityViewContent(webview: vscode.Webview): string {
-		return this.buildWebviewPageHtml(webview, { activityMode: true });
+		return this.buildWebviewPageHtml(this.panel.webview);
 	}
 
 	private getNonce(): string {
 		return crypto.randomBytes(16).toString('hex');
 	}
 
-	private buildWebviewPageHtml(webview: vscode.Webview, opts: { activityMode: boolean }): string {
+	private buildWebviewPageHtml(webview: vscode.Webview): string {
 		const cspSource = webview.cspSource;
 		const nonce = this.getNonce();
 		const cssUri = this.webviewFileUri(webview, path.join(this.ext.extensionPath, 'local', 'dist', 'index.css'));
-		const jsBase = this.webviewFileUri(webview, path.join(this.ext.extensionPath, 'local', 'dist', 'index.js'));
-		const jsUri = opts.activityMode ? `${jsBase}?mode=activity` : jsBase;
+		const jsUri = this.webviewFileUri(webview, path.join(this.ext.extensionPath, 'local', 'dist', 'index.js'));
 		const codiconsUri = this.webviewFileUri(
 			webview,
 			path.join(this.ext.extensionPath, 'node_modules', '@vscode', 'codicons', 'dist', 'codicon.css')
 		);
 
-		const pageTitle = escapeHtml(opts.activityMode ? uiT('Activity') : uiT('Easy Dashboard'));
+		const pageTitle = escapeHtml(uiT('Easy Dashboard'));
 		const pageLang = escapeHtml(getUiLangForHtml());
+		const bootSkeleton = this.renderDashboardBootSkeleton();
 		return `<!DOCTYPE html>
 <html lang="${pageLang}">
 <head>
@@ -272,13 +262,72 @@ class Dashboard {
 	<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}' ${cspSource}; font-src ${cspSource}; img-src ${cspSource} data: https:;">
 	<title>${pageTitle}</title>
 	<link href="${codiconsUri}" rel="stylesheet" />
+	<style>
+		html, body { background: var(--vscode-editor-background); color: var(--vscode-editor-foreground); margin: 0; padding: 0; }
+		body { font-family: var(--vscode-font-family, system-ui, sans-serif); }
+		.boot-shell { box-sizing: border-box; min-height: 100vh; padding: 16px 12px; display: flex; flex-direction: column; gap: 24px; }
+		.boot-shell *, .boot-shell *::before, .boot-shell *::after { box-sizing: border-box; }
+		.boot-toolbar { display: flex; align-items: center; gap: 8px; padding: 12px; border: 1px solid var(--vscode-widget-border, var(--vscode-editorGroup-border, transparent)); background: var(--vscode-editorWidget-background); border-radius: 10px; }
+		.boot-toolbar > .boot-toolbar-actions { display: flex; gap: 8px; margin-left: auto; }
+		.boot-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+		.boot-card { display: flex; gap: 12px; align-items: center; padding: 16px; border: 1px solid var(--vscode-widget-border, var(--vscode-editorGroup-border, transparent)); background: var(--vscode-editorWidget-background); border-radius: 12px; }
+		.boot-card-text { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
+		.boot-skel { background: var(--vscode-editorHoverWidget-statusBarBackground, rgba(127,127,127,0.18)); border-radius: 6px; animation: bootPulse 1.4s ease-in-out infinite; }
+		.boot-skel.boot-skel-rect { border-radius: 8px; }
+		.boot-skel.boot-skel-circle { border-radius: 999px; }
+		@keyframes bootPulse { 0%, 100% { opacity: 0.55; } 50% { opacity: 0.85; } }
+	</style>
 	<link href="${cssUri}" rel="stylesheet" />
 </head>
 <body>
+	<div id="boot-overlay">${bootSkeleton}</div>
 	<div id="root"></div>
+	<script nonce="${nonce}">
+		(function () {
+			const overlay = document.getElementById('boot-overlay');
+			if (!overlay) return;
+			const removeOverlay = () => {
+				try { overlay.remove(); } catch {}
+			};
+			window.addEventListener('message', removeOverlay, { once: true });
+			setTimeout(removeOverlay, 1600);
+		})();
+	</script>
 	<script nonce="${nonce}" type="module" src="${jsUri}"></script>
 </body>
 </html>`;
+	}
+
+	/** Squelette inline pour la fenêtre principale, affiché instantanément avant le boot React. */
+	private renderDashboardBootSkeleton(): string {
+		const card = `
+		<div class="boot-card">
+			<div class="boot-skel boot-skel-rect" style="width:40px;height:40px;"></div>
+			<div class="boot-card-text">
+				<div class="boot-skel" style="height:14px;width:70%;"></div>
+				<div class="boot-skel" style="height:10px;width:45%;"></div>
+				<div style="display:flex;gap:8px;margin-top:6px;">
+					<div class="boot-skel" style="height:10px;width:48px;"></div>
+					<div class="boot-skel" style="height:10px;width:48px;"></div>
+					<div class="boot-skel" style="height:10px;width:48px;"></div>
+				</div>
+			</div>
+		</div>`;
+		const cards = new Array(8).fill(card).join('');
+		return `
+		<div class="boot-shell" aria-hidden="true">
+			<div class="boot-toolbar">
+				<div class="boot-skel" style="height:32px;width:min(420px,55%);"></div>
+				<div class="boot-skel" style="height:32px;width:120px;"></div>
+				<div class="boot-toolbar-actions">
+					<div class="boot-skel boot-skel-circle" style="height:32px;width:32px;"></div>
+					<div class="boot-skel" style="height:32px;width:80px;"></div>
+					<div class="boot-skel" style="height:32px;width:80px;"></div>
+					<div class="boot-skel boot-skel-circle" style="height:32px;width:32px;"></div>
+				</div>
+			</div>
+			<div class="boot-grid">${cards}</div>
+		</div>`;
 	}
 
 	public generateDatabase():
@@ -298,9 +347,22 @@ class Dashboard {
 
 		Util.println('Easy Dashboard Closed');
 		delete this.panel;
+		this.i18nSentToPanel = false;
 
 		return;
 	};
+
+	private onWebviewPerf(msg: Message): void {
+		const data = msg.data as { metric?: unknown; valueMs?: unknown; itemCount?: unknown } | undefined;
+		if (!data || typeof data.metric !== 'string') return;
+		const value = typeof data.valueMs === 'number' ? data.valueMs : Number(data.valueMs);
+		if (!Number.isFinite(value)) return;
+		const tail = typeof data.itemCount === 'number' ? ` items=${data.itemCount}` : '';
+		Util.println(
+			`${data.metric}=${Math.round(value)}ms${tail}`,
+			'Easy Dashboard::perf'
+		);
+	}
 
 	////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////
@@ -328,6 +390,9 @@ class Dashboard {
 		switch(msg.type) {
 			case 'hey':
 				void this.onHey(msg);
+			break;
+			case 'webviewperf':
+				this.onWebviewPerf(msg);
 			break;
 			case 'pickdir':
 				this.onPickDir(msg);
@@ -383,21 +448,14 @@ class Dashboard {
 			case 'foldersort':
 				this.onFolderSort(msg);
 			break;
-			case 'viewmodeset':
-				this.conf.setObject({ viewMode: msg.data.viewMode });
+			case 'viewmodeset': {
+				const requested = typeof msg.data?.viewMode === 'string' ? msg.data.viewMode : '';
+				const allowed = new Set(['grid', 'list', 'tree']);
+				const next = allowed.has(requested) ? requested : 'grid';
+				this.conf.setObject({ viewMode: next });
 				void this.onHey(msg);
-			break;
-			case 'chartvisibleset':
-				this.conf.setObject({ chartVisible: msg.data.chartVisible });
-				void this.onHey(msg);
-			break;
-			case 'filtermode':
-				this.conf.setObject({ filterMode: msg.data.filterMode });
-				void this.onHey(msg);
-			break;
-			case 'statsrequest':
-				this.onStatsRequest(msg);
-			break;
+				break;
+			}
 			case 'integrationsettings':
 				void this.onIntegrationSettings(msg);
 			break;
@@ -415,22 +473,6 @@ class Dashboard {
 		return;
 	};
 
-	private async onStatsRequest(msg: Message) {
-		if (!this.lineCounter) return;
-		
-		const projectPath = typeof msg.data?.path === 'string' ? msg.data.path : '';
-		const project = this.findProjectEntryByPath(projectPath);
-		if (project) {
-			if (project.path.includes('://') && !project.path.startsWith('file:')) {
-				this.sendv('stats', { path: project.path, lines: 0 });
-				return;
-			}
-			const fsPath = project.getUriObject().fsPath;
-			const lines = await this.lineCounter.countLines(fsPath);
-			this.sendv('stats', { path: project.path, lines });
-		}
-	}
-
 	private mapDatabaseForWebview(arr: any[], webview: vscode.Webview | undefined): any[] {
 		if (!webview) return arr;
 		return arr.map((v: any) => {
@@ -444,20 +486,18 @@ class Dashboard {
 		});
 	}
 
-	private anyWebviewForUriMapping(): vscode.Webview | undefined {
-		return this.panel?.webview ?? this.activityWebviewView?.webview;
-	}
-
-	private postSupToWebviews(config: object): void {
-		const msg = new Message('sup', config);
-		if (this.panel) {
-			this.panel.webview.postMessage(msg);
+	private postSupToPanel(config: any): void {
+		if (!this.panel) {
+			return;
 		}
-		if (this.activityWebviewView) {
-			this.activityWebviewView.webview.postMessage(msg);
-		}
+		const i18n = config.i18n;
+		const baseConfig: any = { ...config };
+		delete baseConfig.i18n;
+		const payload = this.i18nSentToPanel ? baseConfig : { ...baseConfig, i18n };
+		this.panel.webview.postMessage(new Message('sup', payload));
+		this.i18nSentToPanel = true;
 		if (this.conf.debug) {
-		Util.println('sup', 'Easy Dashboard::postSupToWebviews');
+			Util.println('sup', 'Easy Dashboard::postSupToPanel');
 		}
 	}
 
@@ -467,26 +507,24 @@ class Dashboard {
 		this.onTreeDataChanged?.();
 
 		const config = this.conf.getObject() as any;
-		const mapWv = this.anyWebviewForUriMapping();
+		const mapWv = this.panel?.webview;
 		if (Array.isArray(config.database)) {
 			config.database = this.mapDatabaseForWebview(config.database, mapWv);
 		}
 		config.i18n = buildWebviewJsI18n((m) => uiT(m));
 
-		if (this.tracker) {
-			config.activityData = this.tracker.getDataForWebview();
-		}
-
 		config.vercelTeamSlug = this.conf.vercelTeamSlug ?? '';
 		config.neonOrgId = this.conf.neonOrgId ?? '';
-		const cfTok = await this.ext.secrets.get('easyDashboard.cloudflareApiToken');
-		const vTok = await this.ext.secrets.get('easyDashboard.vercelToken');
-		const neonTok = await this.ext.secrets.get('easyDashboard.neonApiKey');
+		const [cfTok, vTok, neonTok] = await Promise.all([
+			this.ext.secrets.get('easyDashboard.cloudflareApiToken'),
+			this.ext.secrets.get('easyDashboard.vercelToken'),
+			this.ext.secrets.get('easyDashboard.neonApiKey'),
+		]);
 		(config as any).cloudflareTokenConfigured = !!(cfTok && cfTok.trim());
 		(config as any).vercelTokenConfigured = !!(vTok && vTok.trim());
 		(config as any).neonTokenConfigured = !!(neonTok && neonTok.trim());
 
-		this.postSupToWebviews(config);
+		this.postSupToPanel(config);
 
 		if (this.pendingOpenProjectNewParent !== false) {
 			const parent = this.pendingOpenProjectNewParent;
@@ -629,9 +667,6 @@ class Dashboard {
 
 			this.conf.updateProject(projectId, { lastOpenedAt: Date.now() });
 			
-			if (this.tracker) {
-				this.tracker.recordOpen(project.getUriObject().fsPath);
-			}
 		}
 		return;
 	};

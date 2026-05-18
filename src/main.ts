@@ -8,10 +8,6 @@ import ProjectEntry from './core/project-entry';
 import ProjectFolder from './core/project-folder';
 import { pickProjectIcon } from './core/project-icons';
 import { isRecentEntryWrapper } from './core/dashboard-tree-provider';
-import { ActivityTracker } from './core/activity-tracker';
-import { LineCounter } from './core/line-counter';
-import { ActivitySidebarWebviewViewProvider, ACTIVITY_WEBVIEW_VIEW_ID } from './core/activity-sidebar-webview';
-
 /** Aligne le paramètre workbench sur l’option Easy Dashboard (pas d’API par-vue dans VS Code). */
 function syncWorkbenchViewHeaderActionsVisibility(): void {
 	const extCfg = vscode.workspace.getConfiguration('easy-dashboard');
@@ -31,20 +27,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const dashboard = new Dashboard(context);
 	const sidebar = new Sidebar(dashboard);
-	const tracker = new ActivityTracker(context);
-	const lineCounter = new LineCounter(context);
-	
-	dashboard.setActivityTracker(tracker);
-	dashboard.setLineCounter(lineCounter);
-	dashboard.setOnTreeDataChanged(() => sidebar.refreshTrees());
 
-	context.subscriptions.push(
-		vscode.window.registerWebviewViewProvider(
-			ACTIVITY_WEBVIEW_VIEW_ID,
-			new ActivitySidebarWebviewViewProvider(dashboard),
-			{ webviewOptions: { retainContextWhenHidden: true } }
-		)
-	);
+	dashboard.setOnTreeDataChanged(() => sidebar.refreshTrees());
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('easy-dashboard.filterProjects', () => {

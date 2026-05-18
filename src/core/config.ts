@@ -24,6 +24,7 @@ class Config {
 	showPaths!: boolean;
 	showProjectIcons!: boolean;
 	openOnNewWindow!: boolean;
+	prewarmDashboard!: boolean;
 	openInNewWindow!: boolean;
 	fontSize!: string;
 	rounded!: boolean;
@@ -31,8 +32,6 @@ class Config {
 	/** Chemin absolu du dossier racine (projets et dossiers dashboard = disque). Vide = désactivé. */
 	projectsRoot!: string;
 	viewMode!: string;
-	chartVisible!: boolean;
-	filterMode!: string;
 	/** Langue forcée de l’UI Easy Dashboard (auto | en | fr). */
 	uiLocale!: string;
 	/** Slug ou ID d’équipe Vercel (optionnel) pour la CLI `vercel link`. */
@@ -46,8 +45,8 @@ class Config {
 	Array<string> = [
 		'title', 'debug', 'database', 'folderSizing', 'columnSizing',
 		'tabMode', 'showPaths', 'showProjectIcons', 'fontSize', 'rounded',
-		'openOnNewWindow', 'openInNewWindow', 'sortMode', 'projectsRoot',
-		'viewMode', 'chartVisible', 'filterMode', 'uiLocale',
+		'openOnNewWindow', 'prewarmDashboard', 'openInNewWindow', 'sortMode', 'projectsRoot',
+		'viewMode', 'uiLocale',
 		'vercelTeamSlug', 'neonOrgId'
 	];
 
@@ -76,14 +75,13 @@ class Config {
 		this.showPaths = true;
 		this.showProjectIcons = true;
 		this.openOnNewWindow = true;
+		this.prewarmDashboard = true;
 		this.openInNewWindow = false;
 		this.fontSize = 'font-size-normal';
 		this.rounded = true;
 		this.sortMode = 'name-asc';
 		this.projectsRoot = '';
 		this.viewMode = 'grid';
-		this.chartVisible = true;
-		this.filterMode = 'all';
 		this.uiLocale = 'auto';
 		this.vercelTeamSlug = '';
 		this.neonOrgId = '';
